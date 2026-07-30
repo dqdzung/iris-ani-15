@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { GAME_W, GAME_H, S, px } from "../main";
+import { GAME_W, GAME_H, S, px } from "../config";
 
 export class Final extends Phaser.Scene {
   constructor() {

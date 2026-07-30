@@ -1,5 +1,6 @@
 import Phaser from "phaser";
-import { GAME_W, GAME_H, S, px } from "../main";
+import { GAME_W, GAME_H, S, px } from "../config";
+import { clearStage } from "../stageUtils";
 
 // One reusable scene for all 4 stages; `stage` (1..4) comes in via init data.
 export class Stage extends Phaser.Scene {
@@ -35,7 +36,6 @@ export class Stage extends Phaser.Scene {
   }
 
   private clear() {
-    // back to the overworld, which climbs to the next step (or the summit)
-    this.scene.start("Welcome", { cleared: this.stage });
+    clearStage(this, this.stage); // → clear card → overworld climbs to the next step
   }
 }

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { GAME_W, GAME_H, S, px } from "../main";
+import { GAME_W, GAME_H, S, px } from "../config";
 
 // Layout is authored in design units; k() scales a design coord to render space.
 const k = (n: number) => n * S;
@@ -36,6 +36,7 @@ export class Welcome extends Phaser.Scene {
       return;
     }
 
+    this.input.setDefaultCursor("default"); // restore cursor (stages may hide it)
     this.cameras.main.fadeIn(250);
     this.drawSky();
     this.drawMountain();
@@ -62,14 +63,17 @@ export class Welcome extends Phaser.Scene {
       this.makeStartButton(() => {
         // climber follows the trail up to stage 1's corner, then we enter it
         this.walkTo(climber, 0, STEP_IDX[0], () =>
-          this.scene.start("Stage", { stage: 1 }),
+          this.scene.start("StageCard", { stage: 1, mode: "intro" }),
         );
       });
     } else {
       // returning from a cleared stage: climb to the next step, then enter it
       this.time.delayedCall(500, () =>
         this.walkTo(climber, startIdx, STEP_IDX[this.cleared], () =>
-          this.scene.start("Stage", { stage: this.cleared + 1 }),
+          this.scene.start("StageCard", {
+            stage: this.cleared + 1,
+            mode: "intro",
+          }),
         ),
       );
     }
