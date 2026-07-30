@@ -1,7 +1,7 @@
 import Phaser from "phaser";
-import { GAME_W, GAME_H, STAGE_COUNT } from "../main";
+import { GAME_W, GAME_H, S, px } from "../main";
 
-// One reusable scene for all 4 stages; `stage` (1..STAGE_COUNT) comes in via init data.
+// One reusable scene for all 4 stages; `stage` (1..4) comes in via init data.
 export class Stage extends Phaser.Scene {
   private stage = 1;
 
@@ -14,17 +14,18 @@ export class Stage extends Phaser.Scene {
   }
 
   create() {
+    this.cameras.main.fadeIn(220);
     this.add
-      .text(GAME_W / 2, GAME_H / 2 - 30, `Stage ${this.stage}`, {
-        fontSize: "48px",
+      .text((GAME_W / 2) * S, (GAME_H / 2 - 30) * S, `Stage ${this.stage}`, {
+        fontSize: px(48),
         color: "#ffffff",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
     this.add
-      .text(GAME_W / 2, GAME_H / 2 + 40, "click to clear this stage", {
-        fontSize: "20px",
+      .text((GAME_W / 2) * S, (GAME_H / 2 + 40) * S, "click to clear this stage", {
+        fontSize: px(20),
         color: "#8a8fa3",
       })
       .setOrigin(0.5);
@@ -34,10 +35,7 @@ export class Stage extends Phaser.Scene {
   }
 
   private clear() {
-    if (this.stage >= STAGE_COUNT) {
-      this.scene.start("Final");
-    } else {
-      this.scene.start("Stage", { stage: this.stage + 1 });
-    }
+    // back to the overworld, which climbs to the next step (or the summit)
+    this.scene.start("Welcome", { cleared: this.stage });
   }
 }
