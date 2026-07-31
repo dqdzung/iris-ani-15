@@ -12,25 +12,30 @@ export const GAME_H = 540;
 export const STAGE_COUNT = 4;
 
 // Per-stage metadata: which scene runs it + the intro-card copy. Index = stage - 1.
+// `lock` = engage Pointer Lock on the start-screen click (relative mouse control).
 export const STAGES = [
   {
     key: "LootCatcher",
     title: "Loot Catcher",
     how: "Move the basket to catch the loot and dodge bombs. Survive the clock.",
+    lock: true,
   },
   {
     key: "SlidingPuzzle",
     title: "Sliding Puzzle",
     how: "Slide the pieces next to the gap to rebuild the picture.",
+    lock: false,
   },
   {
     key: "WhackAMole",
     title: "Whack-a-Mole",
     how: "Bop the moles, avoid the bombs. Last the whole round.",
+    lock: false,
   },
   {
     key: "Stage",
     title: "The Summit",
     how: "One final push to the top.",
+    lock: false,
   },
 ];

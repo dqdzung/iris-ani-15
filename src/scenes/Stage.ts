@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { GAME_W, GAME_H, S, px } from "../config";
+import { vw, vh, u, fs } from "../layout";
 import { clearStage } from "../stageUtils";
 
 // One reusable scene for all 4 stages; `stage` (1..4) comes in via init data.
@@ -16,17 +16,20 @@ export class Stage extends Phaser.Scene {
 
   create() {
     this.cameras.main.fadeIn(220);
+    const cx = vw(this) / 2,
+      cy = vh(this) / 2,
+      U = u(this);
     this.add
-      .text((GAME_W / 2) * S, (GAME_H / 2 - 30) * S, `Stage ${this.stage}`, {
-        fontSize: px(48),
+      .text(cx, cy - 30 * U, `Stage ${this.stage}`, {
+        fontSize: fs(this, 48),
         color: "#ffffff",
         fontStyle: "bold",
       })
       .setOrigin(0.5);
 
     this.add
-      .text((GAME_W / 2) * S, (GAME_H / 2 + 40) * S, "click to clear this stage", {
-        fontSize: px(20),
+      .text(cx, cy + 40 * U, "click to clear this stage", {
+        fontSize: fs(this, 20),
         color: "#8a8fa3",
       })
       .setOrigin(0.5);

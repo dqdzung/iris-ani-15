@@ -99,22 +99,44 @@ export class LootCatcher extends Phaser.Scene {
     this.input.setDefaultCursor("none"); // basket follows the pointer; hide the OS cursor
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.keys = this.input.keyboard!.addKeys("A,D") as typeof this.keys;
-    this.input.on("pointermove", (p: Phaser.Input.Pointer) => {
-      if (!this.over)
-        this.basket.x = Phaser.Math.Clamp(
-          p.worldX,
-          BASKET_HALF,
-          GW - BASKET_HALF,
-        );
-    });
 
     this.add
-      .text(GW / 2, GH - 20 * S, "← → or drag to move · survive the clock", {
+      .text(GW / 2, GH - 20 * S, "← → or move mouse · survive the clock", {
         fontSize: px(13),
         color: "#889",
         padding: { y: 4 },
       })
       .setOrigin(0.5);
+
+    // Move the basket with the mouse. Pointer lock is engaged on the start screen
+    // (StageCard) so the mouse can't leave the game — use relative movement while
+    // locked; fall back to absolute position if it's released (Esc).
+    this.input.on("pointermove", (p: Phaser.Input.Pointer) => {
+      if (this.over) return;
+      if (this.input.mouse?.locked) {
+        const clientW = this.sys.game.canvas.clientWidth || this.scale.width;
+        const sens = this.scale.width / clientW / this.cameras.main.zoom; // → ~1:1 feel
+        this.basket.x = Phaser.Math.Clamp(
+          this.basket.x + p.movementX * sens,
+          BASKET_HALF,
+          GW - BASKET_HALF,
+        );
+      } else {
+        this.basket.x = Phaser.Math.Clamp(p.worldX, BASKET_HALF, GW - BASKET_HALF);
+      }
+    });
+
+    // re-lock on click if it was released with Esc (native gesture — Phaser's own
+    // pointer events fire off-gesture, so requestPointerLock() there is blocked)
+    const canvas = this.sys.game.canvas;
+    const relock = () => {
+      if (!this.over && !this.input.mouse?.locked) this.input.mouse?.requestPointerLock();
+    };
+    canvas.addEventListener("mousedown", relock);
+    this.events.once("shutdown", () => {
+      canvas.removeEventListener("mousedown", relock);
+      this.input.mouse?.releasePointerLock();
+    });
 
     this.time.addEvent({
       delay: 1000,
@@ -235,6 +257,7 @@ export class LootCatcher extends Phaser.Scene {
   // survived the clock → stage cleared
   private survive() {
     this.over = true;
+    this.input.mouse?.releasePointerLock();
     this.clearItems();
     this.add
       .text(GW / 2, GH / 2, "Made it! 🎉", {
@@ -249,6 +272,7 @@ export class LootCatcher extends Phaser.Scene {
 
   private gameOver() {
     this.over = true;
+    this.input.mouse?.releasePointerLock();
     this.input.setDefaultCursor("default"); // show cursor for the Try Again button
     this.clearItems();
     this.add.rectangle(GW / 2, GH / 2, GW, GH, 0x000000, 0.75);
