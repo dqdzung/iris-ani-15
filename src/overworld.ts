@@ -34,6 +34,22 @@ export function initOverworld(g: Phaser.Game) {
   Object.assign(el.style, { width: "100%", height: "100%", display: "block" });
   wrap.appendChild(el);
 
+  const title = document.createElement("div");
+  title.textContent = "Iris 15th";
+  Object.assign(title.style, {
+    position: "fixed",
+    top: "4%",
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: "6",
+    font: "800 clamp(30px, 5.5vw, 58px) Archivo, system-ui, sans-serif",
+    letterSpacing: "-.02em",
+    color: "#201e1d",
+    pointerEvents: "none",
+    whiteSpace: "nowrap",
+  });
+  wrap.appendChild(title);
+
   btn = document.createElement("button");
   btn.textContent = "Start";
   Object.assign(btn.style, {

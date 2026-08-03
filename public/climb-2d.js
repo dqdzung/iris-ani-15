@@ -176,22 +176,26 @@ class IrisClimb2D extends HTMLElement {
     const sf = mk('g', { transform: `translate(${SUMMIT[0]} ${SUMMIT[1]})`, opacity: 0, style: 'transition:opacity .5s' }, cam);
     mk('line', { x1: 0, y1: 4, x2: 0, y2: -78, stroke: '#201e1d', 'stroke-width': 5 }, sf);
     this.cloth = mk('path', { d: '', fill: this.accent }, sf);
-    const st = mk('text', { x: 14, y: -50, fill: '#fff', style: 'font:700 24px/1 Archivo,Helvetica,sans-serif;letter-spacing:.14em' }, sf);
+    const st = mk('text', { x: 16, y: -51, fill: '#fff', style: 'font:700 18px/1 Archivo,Helvetica,sans-serif;letter-spacing:.12em' }, sf);
     st.textContent = 'IRIS';
     this.summitFlag = sf; this.summitText = st;
 
-    // climber
+    // climber — dressed up: jacket (torso + arms), pants (legs), backpack, helmeted
+    // head and an ice axe. Limbs stay lines so the clamber animation still drives them.
     const cl = mk('g', {}, cam);
     this.climber = cl;
-    const ink = { stroke: '#201e1d', 'stroke-width': 5, 'stroke-linecap': 'round', fill: 'none' };
-    this.legA = mk('line', { x1: 0, y1: -14, x2: -7, y2: 0, ...ink }, cl);
-    this.legB = mk('line', { x1: 0, y1: -14, x2: 7, y2: 0, ...ink }, cl);
-    mk('line', { x1: 0, y1: -30, x2: 0, y2: -13, ...ink, 'stroke-width': 6 }, cl);
-    this.armA = mk('line', { x1: 0, y1: -26, x2: -10, y2: -16, ...ink, 'stroke-width': 4 }, cl);
-    this.armB = mk('line', { x1: 0, y1: -26, x2: 11, y2: -34, ...ink, 'stroke-width': 4 }, cl);
-    mk('circle', { cx: 0, cy: -37, r: 6.5, fill: '#201e1d' }, cl);
-    mk('rect', { x: -11, y: -30, width: 9, height: 13, fill: this.accent }, cl);      // pack
-    this.axe = mk('line', { x1: 11, y1: -34, x2: 20, y2: -46, stroke: '#201e1d', 'stroke-width': 3 }, cl);
+    const JACKET = this.accent, PANTS = '#22314f', PACK = '#1c2740', SKIN = '#e8a06a', HELMET = '#f2c94c';
+    const limb = (w, color) => ({ stroke: color, 'stroke-width': w, 'stroke-linecap': 'round', fill: 'none' });
+    mk('rect', { x: -13, y: -31, width: 9, height: 16, rx: 2.5, fill: PACK }, cl);       // backpack
+    this.legA = mk('line', { x1: 0, y1: -14, x2: -7, y2: 0, ...limb(6, PANTS) }, cl);
+    this.legB = mk('line', { x1: 0, y1: -14, x2: 7, y2: 0, ...limb(6, PANTS) }, cl);
+    mk('line', { x1: 0, y1: -30, x2: 0, y2: -12, ...limb(10, JACKET) }, cl);             // torso/jacket
+    this.armA = mk('line', { x1: 0, y1: -26, x2: -10, y2: -16, ...limb(5, JACKET) }, cl);
+    this.armB = mk('line', { x1: 0, y1: -26, x2: 11, y2: -34, ...limb(5, JACKET) }, cl);
+    mk('circle', { cx: 0, cy: -37, r: 6.5, fill: SKIN }, cl);                            // head
+    mk('path', { d: 'M -7.5 -37 A 7.5 7.5 0 0 0 7.5 -37 Z', fill: HELMET }, cl);         // helmet dome
+    // hiking pole: from the hand down to a planted tip on the ground
+    this.axe = mk('line', { x1: 11, y1: -34, x2: 22, y2: 2, stroke: '#5a5a5a', 'stroke-width': 2.4, 'stroke-linecap': 'round' }, cl);
 
     // snow
     const snow = mk('g', {}, svg);
@@ -204,6 +208,8 @@ class IrisClimb2D extends HTMLElement {
 
     this.confettiG = mk('g', {}, svg);
     this._confetti = [];
+    this.fwG = mk('g', {}, this.cam); // fireworks live inside the camera group
+    this._fw = []; this._fwLeft = 0; this._fwGap = 0;
   }
 
   setProgress(p, opts = {}) {
@@ -222,8 +228,8 @@ class IrisClimb2D extends HTMLElement {
       m.g.__lab.setAttribute('opacity', on ? 1 : 0);
     });
     this.summitFlag.setAttribute('opacity', p > .995 ? 1 : 0);
-    if (p >= 1 && !this._done) { this._done = true; this._burst(); this.dispatchEvent(new CustomEvent('summit')); }
-    if (p < 1) this._done = false;
+    if (p >= 1 && !this._done) { this._done = true; this._burst(); this._fireworks(); this.dispatchEvent(new CustomEvent('summit')); }
+    if (p < 1) { this._done = false; this._fwLeft = 0; }
     return this;
   }
   nextStage() { return this.setProgress(Math.min(1, (Math.floor(this.progress * this.stages.length + 1e-4) + 1) / this.stages.length)); }
@@ -236,6 +242,21 @@ class IrisClimb2D extends HTMLElement {
       const n = mk('rect', { x: -s / 2, y: -s / 2, width: s, height: s, fill: i % 3 ? this.accent : '#201e1d' }, this.confettiG);
       const a = -Math.PI / 2 + (Math.random() - .5) * 2.1, v = 380 + Math.random() * 460;
       this._confetti.push({ n, x: SUMMIT[0], y: SUMMIT[1] - 60, vx: Math.cos(a) * v, vy: Math.sin(a) * v, rot: Math.random() * 360, vr: (Math.random() - .5) * 700, life: 0 });
+    }
+  }
+
+  // fireworks: schedule several bursts high in the sky above the peak
+  _fireworks() { this._fwLeft = 8; this._fwGap = 0; }
+  _launchBurst() {
+    const COLORS = ['#ec3013', '#f2c94c', '#4a90d9', '#e85aa0', '#7ed957', '#ff8c42'];
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const cx = 640 + Math.random() * 440, cy = 20 + Math.random() * 180;
+    const N = 22 + Math.floor(Math.random() * 12);
+    for (let i = 0; i < N; i++) {
+      const ang = (i / N) * Math.PI * 2 + Math.random() * 0.25;
+      const v = 110 + Math.random() * 95;
+      const n = mk('circle', { cx, cy, r: 2.2 + Math.random() * 1.8, fill: color }, this.fwG);
+      this._fw.push({ n, x: cx, y: cy, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, life: 0 });
     }
   }
 
@@ -259,8 +280,8 @@ class IrisClimb2D extends HTMLElement {
     this.legB.setAttribute('x2', 7 - sw * 5); this.legB.setAttribute('y2', -Math.abs(sw) * 2);
     this.armA.setAttribute('x2', -10 - sw * 3); this.armA.setAttribute('y2', -16 - sw * 4);
     this.armB.setAttribute('x2', 11 + sw * 2); this.armB.setAttribute('y2', -34 + sw * 3);
-    this.axe.setAttribute('x1', 11 + sw * 2); this.axe.setAttribute('y1', -34 + sw * 3);
-    this.axe.setAttribute('x2', 20 + sw * 3); this.axe.setAttribute('y2', -46 + sw * 4);
+    this.axe.setAttribute('x1', 11 + sw * 2); this.axe.setAttribute('y1', -34 + sw * 3); // top follows the hand
+    this.axe.setAttribute('x2', 22); this.axe.setAttribute('y2', 2);                     // tip planted on the ground
 
     // camera: zoom in as the climb progresses, but keep the (centered) peak fixed
     // horizontally instead of following the climber, so the framing always matches
@@ -295,10 +316,12 @@ class IrisClimb2D extends HTMLElement {
       m.tx.setAttribute('x', -m.tw / 2 + 10 + shift);
     }
 
-    // summit flag cloth wave
+    // summit flag cloth wave — the IRIS text rides the same wave (bob + skew)
     if (this.summitFlag.getAttribute('opacity') !== '0') {
       const w1 = Math.sin(t * 4) * 5, w2 = Math.sin(t * 4 + 1.4) * 7;
       this.cloth.setAttribute('d', `M 0 -78 C 30 ${-80 + w1} 46 ${-66 + w2} 76 ${-72 + w1} L 76 ${-34 + w2} C 46 ${-30 + w1} 30 ${-42 + w2} 0 ${-38} Z`);
+      const bob = (w1 + w2) / 2 * 0.8, sway = Math.sin(t * 4) * 1.6, skew = Math.sin(t * 4 + 0.7) * 3.5;
+      this.summitText.setAttribute('transform', `translate(${sway} ${bob}) skewX(${skew})`);
     }
 
     // snow
@@ -318,6 +341,21 @@ class IrisClimb2D extends HTMLElement {
       c.n.setAttribute('transform', `translate(${sx} ${sy}) rotate(${c.rot}) scale(${world})`);
       c.n.setAttribute('opacity', Math.max(0, 1 - c.life / 2.6));
       if (c.life > 2.6) { c.n.remove(); this._confetti.splice(i, 1); }
+    }
+
+    // fireworks — staggered bursts, then radial sparks with a little gravity (in
+    // camera-space coords, since fwG is inside the cam group)
+    if (this._fwLeft > 0) {
+      this._fwGap -= dt;
+      if (this._fwGap <= 0) { this._launchBurst(); this._fwLeft--; this._fwGap = 0.38 + Math.random() * 0.5; }
+    }
+    for (let i = this._fw.length - 1; i >= 0; i--) {
+      const s = this._fw[i];
+      s.life += dt; s.vy += 55 * dt;
+      s.x += s.vx * dt; s.y += s.vy * dt;
+      s.n.setAttribute('cx', s.x); s.n.setAttribute('cy', s.y);
+      s.n.setAttribute('opacity', Math.max(0, 1 - s.life / 1.45));
+      if (s.life > 1.45) { s.n.remove(); this._fw.splice(i, 1); }
     }
   };
 }
