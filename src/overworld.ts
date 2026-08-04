@@ -72,23 +72,18 @@ export function initOverworld(g: Phaser.Game) {
   document.body.appendChild(wrap);
 }
 
-// Show the overworld at the current progress. cleared 0 waits for the START button;
-// returning from a cleared stage auto-climbs to the next one.
-export function showOverworld(c: number) {
+// Begin the climb from the base (used by the boot screen in place of the Start button).
+export function startClimb() {
+  btn.style.display = "none";
+  enterNext();
+}
+
+// Climb overworld is shelved: instead of showing it, route straight to the next
+// stage's intro card. `c` = stages cleared (0..3 → stages 1..4). The finale is
+// handled by IrisProgress after game 4, so nothing routes to Final here anymore.
+export function showOverworld(c: number, fly = false) {
   cleared = c;
-  if (c >= 4) {
-    hide();
-    game.scene.start("Final");
-    return;
-  }
-  el.setProgress(c / 4);
-  wrap.style.display = "block";
-  if (c === 0) {
-    btn.style.display = "";
-  } else {
-    btn.style.display = "none";
-    setTimeout(enterNext, 700);
-  }
+  game.scene.start("StageCard", { stage: c + 1, mode: "intro", fly });
 }
 
 function hide() {

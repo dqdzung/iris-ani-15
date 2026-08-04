@@ -20,7 +20,7 @@ export class Stage extends Phaser.Scene {
       cy = vh(this) / 2,
       U = u(this);
     this.add
-      .text(cx, cy - 30 * U, `Stage ${this.stage}`, {
+      .text(cx, cy - 30 * U, "Game 4", {
         fontSize: fs(this, 48),
         color: "#ffffff",
         fontStyle: "bold",
@@ -28,7 +28,7 @@ export class Stage extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(cx, cy + 40 * U, "click to clear this stage", {
+      .text(cx, cy + 40 * U, "placeholder — click to clear", {
         fontSize: fs(this, 20),
         color: "#8a8fa3",
       })

@@ -14,13 +14,19 @@ export function fitStage(scene: Phaser.Scene, gameW: number, gameH: number) {
   cam.fadeIn(220);
 }
 
-// Stage cleared → fade out to the clear card (which then climbs the overworld).
+// Stage cleared → fade out to the IRIS progress screen. It lights one more letter
+// per game; clearing the last game (stage 3) lights the rest with the finale.
 export function clearStage(scene: Phaser.Scene, stage: number) {
   const cam = scene.cameras.main;
   cam.fadeOut(260);
-  cam.once("camerafadeoutcomplete", () =>
-    scene.scene.start("StageCard", { stage, mode: "clear" }),
-  );
+  cam.once("camerafadeoutcomplete", () => {
+    const last = stage >= 4; // 4 games (I R I S) → the 4th triggers the finale
+    scene.scene.start("IrisProgress", {
+      lit: stage,
+      animFrom: stage - 1,
+      finale: last,
+    });
+  });
 }
 
 // Failed → retry the same stage from scratch.
