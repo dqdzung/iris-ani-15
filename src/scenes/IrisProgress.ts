@@ -14,6 +14,8 @@ const MONO = '"SFMono-Regular", ui-monospace, Menlo, monospace';
 const GOLD = "#ffd166";
 const DIM = 0x4a4a3a;
 const LIT = { r: 0xff, g: 0xd1, b: 0x66 };
+// finale acrostic: each IRIS letter becomes the first letter of a word
+const WORDS = ["dea", "espect", "nnovation", "olidarity"]; // I·R·I·S remainders
 const CONFETTI = [0xffd166, 0xef476f, 0x06d6a0, 0x118ab2, 0xffffff, 0xf78c6b];
 
 export class IrisProgress extends Phaser.Scene {
@@ -147,8 +149,7 @@ export class IrisProgress extends Phaser.Scene {
           duration: 300,
           onComplete: () => [label, track, fill, pct].forEach((o) => o.destroy()),
         });
-        this.celebrate(cx, cy, U);
-        this.showPrompt(cx, cy, U, 1400);
+        this.showRestored(cx, cy, U);
       },
     });
   }
@@ -193,7 +194,8 @@ export class IrisProgress extends Phaser.Scene {
     });
   }
 
-  private celebrate(cx: number, cy: number, U: number) {
+  // Show "MEMORIES RESTORED", hold a beat, then reveal the acrostic.
+  private showRestored(cx: number, cy: number, U: number) {
     const headline = this.add
       .text(cx, cy - 130 * U, "MEMORIES RESTORED", {
         fontFamily: MONO,
@@ -205,9 +207,88 @@ export class IrisProgress extends Phaser.Scene {
       .setAlpha(0);
     this.tweens.add({ targets: headline, alpha: 1, duration: 500 });
 
-    this.ensureTextures();
+    this.time.delayedCall(1400, () => {
+      // keep it on screen — slide it up so its gap above the words mirrors the
+      // anniversary line's gap below them (both ±3.1·rowH about the acrostic centre)
+      this.tweens.add({
+        targets: headline,
+        y: cy - 20 * U - 3.1 * (74 * U),
+        duration: 500,
+        ease: "Cubic.easeInOut",
+      });
+      this.revealAcrostic(cx, cy, U);
+    });
+  }
 
-    // confetti raining from the top for a few seconds
+  // The IRIS letters glide into a left-aligned vertical column; each becomes the
+  // first letter of a word (Idea · Respect · Innovation · Solidarity), then
+  // "Happy 15th anniversary" fades in below.
+  private revealAcrostic(cx: number, cy: number, U: number) {
+    const s = 0.55; // scale the big letters down to word size
+    const rowH = 74 * U;
+    const blockCy = cy - 20 * U;
+    const colX = cx - 150 * U; // capitals' centre column (left of middle)
+    const restSize = fs(this, 88 * s); // rest-of-word matches the scaled capital
+
+    this.letters.forEach((t, i) => {
+      const rowY = blockCy + (i - 1.5) * rowH;
+      const capHalf = (t.width * s) / 2; // t.width = fs(88) advance at scale 1
+      this.tweens.add({
+        targets: t,
+        x: colX,
+        y: rowY,
+        scale: s,
+        duration: 850,
+        ease: "Cubic.easeInOut",
+        onComplete: () => {
+          const restX = colX + capHalf; // butt the remainder against the capital
+          const rest = this.add
+            .text(restX, rowY, WORDS[i], {
+              fontFamily: MONO,
+              fontSize: restSize,
+              color: "#f0f0f0",
+            })
+            .setOrigin(0, 0.5)
+            .setAlpha(0);
+          this.tweens.add({
+            targets: rest,
+            alpha: 1,
+            x: { from: restX - 14 * U, to: restX },
+            duration: 1200,
+            delay: i * 220,
+          });
+        },
+      });
+    });
+
+    // "Happy 15th anniversary" below the acrostic, after the words settle
+    // (last word: 850 move + 3·220 stagger + 1200 reveal)
+    this.time.delayedCall(850 + 3 * 220 + 1200 + 150, () => {
+      const anniv = this.add
+        .text(cx, blockCy + 3.1 * rowH, "Happy 15th anniversary!", {
+          fontFamily: MONO,
+          fontSize: fs(this, 30),
+          color: GOLD,
+          fontStyle: "bold",
+        })
+        .setOrigin(0.5)
+        .setAlpha(0);
+      this.tweens.add({
+        targets: anniv,
+        alpha: 1,
+        y: { from: anniv.y + 16 * U, to: anniv.y },
+        duration: 600,
+        onComplete: () => {
+          this.celebrate();
+          this.armReplay();
+        },
+      });
+    });
+  }
+
+  // Closing celebration: confetti rain + a volley of firework bursts.
+  private celebrate() {
+    this.ensureTextures();
     this.add.particles(0, -20, "ip-confetti", {
       x: { min: 0, max: vw(this) },
       y: -20,
@@ -219,20 +300,19 @@ export class IrisProgress extends Phaser.Scene {
       rotate: { min: 0, max: 360 },
       tint: CONFETTI,
       scale: { min: 0.7, max: 1.5 },
-      duration: 3500,
+      duration: 7500,
     });
 
-    // a volley of firework bursts
     let n = 0;
     const boom = () => {
-      if (n++ >= 7) return;
+      if (n++ >= 22) return;
       const x = Phaser.Math.Between(
         Math.round(vw(this) * 0.15),
         Math.round(vw(this) * 0.85),
       );
       const y = Phaser.Math.Between(
         Math.round(vh(this) * 0.12),
-        Math.round(vh(this) * 0.5),
+        Math.round(vh(this) * 0.45),
       );
       const e = this.add.particles(x, y, "ip-spark", {
         speed: { min: 80, max: 260 },
@@ -251,7 +331,6 @@ export class IrisProgress extends Phaser.Scene {
     boom();
   }
 
-  // small white circle + rectangle textures for the particle emitters
   private ensureTextures() {
     if (!this.textures.exists("ip-spark")) {
       const g = this.add.graphics();
@@ -267,15 +346,27 @@ export class IrisProgress extends Phaser.Scene {
     }
   }
 
+  // Tap anywhere (once the anniversary is shown) to replay from the boot screen.
+  private armReplay() {
+    this.input.once("pointerdown", () => {
+      this.input.enabled = false;
+      this.cameras.main.fadeOut(300);
+      this.cameras.main.once("camerafadeoutcomplete", () => {
+        this.scene.stop();
+        playBootScreen(() => showOverworld(0));
+      });
+    });
+  }
+
+  // Between-game "tap to continue" → fly the next letter into its badge.
   private showPrompt(cx: number, cy: number, U: number, delay: number) {
     this.time.delayedCall(delay, () => {
       const prompt = this.add
-        .text(
-          cx,
-          cy + 100 * U,
-          this.finale ? "thanks for playing" : "tap to continue",
-          { fontFamily: MONO, fontSize: fs(this, 22), color: GOLD },
-        )
+        .text(cx, cy + 100 * U, "tap to continue", {
+          fontFamily: MONO,
+          fontSize: fs(this, 22),
+          color: GOLD,
+        })
         .setOrigin(0.5);
       this.tweens.add({
         targets: prompt,
@@ -287,16 +378,7 @@ export class IrisProgress extends Phaser.Scene {
       });
       this.input.once("pointerdown", () => {
         this.input.enabled = false;
-        if (this.finale) {
-          this.cameras.main.fadeOut(220);
-          this.cameras.main.once("camerafadeoutcomplete", () => {
-            this.scene.stop();
-            // finale → back to the boot screen (full replay); ENTER restarts game 1
-            playBootScreen(() => showOverworld(0));
-          });
-        } else {
-          this.flyLetterToNextBadge(prompt, cx, cy, U);
-        }
+        this.flyLetterToNextBadge(prompt, cx, cy, U);
       });
     });
   }
