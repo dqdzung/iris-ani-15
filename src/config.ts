@@ -27,15 +27,16 @@ export const STAGES = [
     lock: false,
   },
   {
+    key: "PipeConnect",
+    title: "PipeConnect",
+    how: "One final push to the top.",
+    lock: false,
+  },
+  {
     key: "WhackAMole",
     title: "Whack-a-Mole",
     how: "Bop the moles, avoid the bombs. Last the whole round.",
     lock: false,
   },
-  {
-    key: "Stage",
-    title: "The Summit",
-    how: "One final push to the top.",
-    lock: false,
-  },
+
 ];

@@ -30,7 +30,7 @@ type Hole = {
 };
 
 export class WhackAMole extends Phaser.Scene {
-  private stage = 3;
+  private stage = 4;
   private score = 0;
   private timeLeft = GAME_TIME;
   private over = false;
@@ -45,7 +45,7 @@ export class WhackAMole extends Phaser.Scene {
   }
 
   init(data: { stage?: number } = {}) {
-    this.stage = data.stage ?? 3;
+    this.stage = data.stage ?? 4;
   }
 
   create() {

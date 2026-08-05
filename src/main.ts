@@ -11,6 +11,7 @@ import { initOverworld, showOverworld } from "./overworld";
 import { clearStage } from "./stageUtils";
 import { playTvIntro } from "./tvIntro";
 import { playBootScreen } from "./bootScreen";
+import { PipeConnect } from "./scenes/PipeConnect";
 
 // Responsive + crisp: the canvas fills the viewport, and we render at the device
 // pixel ratio (backing store = CSS size × DPR) so text stays sharp on retina/phones.
@@ -26,7 +27,7 @@ const game = new Phaser.Game({
     width: window.innerWidth * DPR,
     height: window.innerHeight * DPR,
   },
-  scene: [Boot, StageCard, LootCatcher, SlidingPuzzle, WhackAMole, Stage, IrisProgress, Final],
+  scene: [Boot, StageCard, LootCatcher, SlidingPuzzle, PipeConnect, WhackAMole, IrisProgress, Final],
 });
 
 // Backing store = viewport × DPR (crisp); CSS size = viewport (fills screen).
@@ -47,7 +48,7 @@ initOverworld(game); // sets up routing (climb visuals shelved — see overworld
 // TV turns on → boot log types out → "Press START" enters stage 1.
 playTvIntro(() => playBootScreen(() => showOverworld(0)));
 
-const GAMES = ["LootCatcher", "SlidingPuzzle", "WhackAMole", "Stage"];
+const GAMES = ["LootCatcher", "SlidingPuzzle", "PipeConnect", "WhackAMole"];
 const activeGame = () =>
   game.scene.getScenes(true).find((s) => GAMES.includes(s.scene.key));
 
