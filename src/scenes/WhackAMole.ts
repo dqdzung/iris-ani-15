@@ -8,6 +8,12 @@ import { fitStage, clearStage, retryStage } from "../stageUtils";
 const GW = 480 * S;
 const GH = 540 * S; // grass below is a square (GW tall); the rest is a thin sky band
 
+// Field palette — dark & gold-accented to match the rest of the game. Tweak here.
+const SKY = 0x12141c; // top band (same dark as the intro/finale panels)
+const GROUND = 0x222717; // dark muted "grass"
+const HOLE_RIM = 0x4a3f22; // raised earth ring (gold-brown, nods to the accent)
+const HOLE_HOLLOW = 0x0c0e08; // near-black hollow
+
 const GAME_TIME = 30;
 const POP_INTERVAL = 595;
 const UP_TIME = 650;
@@ -58,8 +64,8 @@ export class WhackAMole extends Phaser.Scene {
 
     // field: sky on top, grass fills the rest as a square (height == canvas width)
     const skyH = GH - GW;
-    this.add.rectangle(0, 0, GW, GH, 0x8fd0ef).setOrigin(0);
-    this.add.rectangle(0, skyH, GW, GH - skyH, 0x5fae3a).setOrigin(0);
+    this.add.rectangle(0, 0, GW, GH, SKY).setOrigin(0);
+    this.add.rectangle(0, skyH, GW, GH - skyH, GROUND).setOrigin(0);
 
     this.holes = [];
     for (const ry of GRID)
@@ -118,9 +124,9 @@ export class WhackAMole extends Phaser.Scene {
 
   private makeHole(x: number, y: number) {
     const g = this.add.graphics();
-    g.fillStyle(0x7a5433, 1);
+    g.fillStyle(HOLE_RIM, 1);
     g.fillEllipse(x, y + 8 * S, 108 * S, 52 * S);
-    g.fillStyle(0x341f0e, 1);
+    g.fillStyle(HOLE_HOLLOW, 1);
     g.fillEllipse(x, y, 82 * S, 34 * S);
 
     const upY = y - 22 * S,
@@ -236,7 +242,7 @@ export class WhackAMole extends Phaser.Scene {
     const t = this.add
       .text(x, y - 6 * S, "-" + BOMB_PENALTY + "s", {
         fontSize: px(22),
-        color: "#ff5a5a",
+        color: "#ef476f",
         fontStyle: "bold",
         padding: { y: 6 },
       })
@@ -312,7 +318,7 @@ export class WhackAMole extends Phaser.Scene {
       this.add
         .text(GW / 2, GH / 2 + 30 * S, "Score: " + this.score, {
           fontSize: px(18),
-          color: "#aab",
+          color: "#8a8fa3",
           align: "center",
           padding: { y: 6 },
         })
@@ -323,7 +329,7 @@ export class WhackAMole extends Phaser.Scene {
       this.add
         .text(GW / 2, GH / 2 + 24 * S, "A bomb ran down the clock", {
           fontSize: px(16),
-          color: "#aab",
+          color: "#8a8fa3",
           padding: { y: 6 },
         })
         .setOrigin(0.5)
