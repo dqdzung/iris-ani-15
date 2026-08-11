@@ -19,6 +19,8 @@ const POP_INTERVAL = 595;
 const UP_TIME = 650;
 const BOMB_CHANCE = 0.2;
 const BOMB_PENALTY = 3;
+const REST_ANGLE = 40; // whacker resting tilt (raised, diagonal like the old hammer)
+const STRIKE_ANGLE = -20; // chops DOWN past horizontal on a swing (top → bottom)
 
 // symmetric 3×3 grid as fractions of the grass square → centered, evenly spaced
 const GRID = [0.25, 0.5, 0.75];
@@ -90,9 +92,10 @@ export class WhackAMole extends Phaser.Scene {
       .setDepth(50);
 
     this.hammer = this.add
-      .text(GW / 2, GH / 2, "🔨", { fontSize: px(52), padding: { y: 8 } })
+      .text(GW / 2, GH / 2, "⌨️", { fontSize: px(52), padding: { y: 8 } })
       .setOrigin(0.82, 0.85)
-      .setDepth(100);
+      .setDepth(100)
+      .setAngle(REST_ANGLE);
     const HEAD = 0.28;
     const offX = (0.82 - HEAD) * this.hammer.width,
       offY = (0.85 - HEAD) * this.hammer.height;
@@ -132,7 +135,7 @@ export class WhackAMole extends Phaser.Scene {
     const upY = y - 22 * S,
       downY = y + 64 * S;
     const mole = this.add
-      .text(x, downY, "🐹", { fontSize: px(46), padding: { y: 8 } })
+      .text(x, downY, "👾", { fontSize: px(46), padding: { y: 8 } })
       .setOrigin(0.5, 0.5)
       .setDepth(10);
     const maskG = this.make.graphics();
@@ -166,7 +169,7 @@ export class WhackAMole extends Phaser.Scene {
     if (!down.length) return;
     const h = Phaser.Utils.Array.GetRandom(down);
     h.bomb = Math.random() < BOMB_CHANCE;
-    h.mole.setText(h.bomb ? "💣" : "🐹");
+    h.mole.setText(h.bomb ? "💣" : "👾");
     h.up = true;
     h.moving = true;
     this.tweens.add({
@@ -279,10 +282,10 @@ export class WhackAMole extends Phaser.Scene {
 
   private swing() {
     this.tweens.killTweensOf(this.hammer);
-    this.hammer.setAngle(0);
+    this.hammer.setAngle(REST_ANGLE);
     this.tweens.add({
       targets: this.hammer,
-      angle: -55,
+      angle: STRIKE_ANGLE, // chop down from the resting tilt, then back
       duration: 55,
       yoyo: true,
       ease: "Quad.easeOut",
