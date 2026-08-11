@@ -3,20 +3,22 @@ import { S, px } from "../config";
 import { fitStage, clearStage, retryStage } from "../stageUtils";
 
 // Stage 1 — Loot Catcher (ported from MiniGames). Move the basket to catch rewards,
-// dodge bombs. Clear = survive SURVIVE seconds without losing all lives.
+// dodge bugs. Clear = survive SURVIVE seconds without losing all lives.
 // Authored in its native portrait size; fitStage() centers it in the landscape canvas.
 
 const GW = 480 * S;
 const GH = 640 * S;
 
+// Rewards are images from public/loot-catcher (key/file), weighted by rarity.
 const REWARDS = [
-	{ emoji: "🍒", weight: 45, value: 10 },
-	{ emoji: "🍎", weight: 28, value: 20 },
-	{ emoji: "💵", weight: 15, value: 40 },
-	{ emoji: "💰", weight: 8, value: 75 },
-	{ emoji: "💎", weight: 4, value: 150 },
+	{ key: "lc-1800", file: "1800_1900.png", weight: 45, value: 10 },
+	{ key: "lc-6x67", file: "6x67.png", weight: 28, value: 20 },
+	{ key: "lc-chatbot", file: "AIchatbot.png", weight: 15, value: 40 },
+	{ key: "lc-dino", file: "Dino.png", weight: 8, value: 75 },
+	{ key: "lc-sms", file: "sms-brand.png", weight: 4, value: 150 },
 ];
-const BOMB = "💣";
+const REWARD_BOX = { w: 66, h: 44 }; // fit each image into this box (design units)
+const BUG = "👾"; // the penalty item — a computer bug
 const BOMB_CHANCE = 0.5;
 const SURVIVE = 45; // seconds to last to clear the stage
 
@@ -26,7 +28,7 @@ const ITEM_HALF = 20 * S;
 const MOVE_SPEED = 680 * S;
 
 type Item = {
-	t: Phaser.GameObjects.Text;
+	t: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
 	bomb: boolean;
 	value: number;
 	label: Phaser.GameObjects.Text | null;
@@ -56,6 +58,10 @@ export class LootCatcher extends Phaser.Scene {
 
 	init(data: { stage?: number } = {}) {
 		this.stage = data.stage ?? 1;
+	}
+
+	preload() {
+		for (const r of REWARDS) this.load.image(r.key, "/loot-catcher/" + r.file);
 	}
 
 	create() {
@@ -168,12 +174,22 @@ export class LootCatcher extends Phaser.Scene {
 	private spawnItem() {
 		const isBomb = Math.random() < BOMB_CHANCE;
 		const reward = isBomb ? null : this.pickReward();
-		const symbol = isBomb ? BOMB : reward!.emoji;
 		const value = isBomb ? 0 : reward!.value;
 		const x = Phaser.Math.Between(ITEM_HALF + 8 * S, GW - ITEM_HALF - 8 * S);
-		const t = this.add
-			.text(x, -ITEM_HALF, symbol, { fontSize: px(34), padding: { y: 6 } })
-			.setOrigin(0.5);
+		// bug stays an emoji; rewards are images fit into REWARD_BOX (aspect kept)
+		let t: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+		if (isBomb) {
+			t = this.add
+				.text(x, -ITEM_HALF, BUG, { fontSize: px(34), padding: { y: 6 } })
+				.setOrigin(0.5);
+		} else {
+			const img = this.add.image(x, -ITEM_HALF, reward!.key).setOrigin(0.5);
+			const src = this.textures.get(reward!.key).getSourceImage();
+			img.setScale(
+				Math.min((REWARD_BOX.w * S) / src.width, (REWARD_BOX.h * S) / src.height),
+			);
+			t = img;
+		}
 		const label = isBomb
 			? null
 			: this.add
@@ -310,4 +326,5 @@ export class LootCatcher extends Phaser.Scene {
 		btn.on("pointerdown", () => retryStage(this, this.stage));
 	}
 }
+
 
