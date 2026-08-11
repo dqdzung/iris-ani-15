@@ -22,8 +22,9 @@ const BUG = "👾"; // the penalty item — a computer bug
 const BOMB_CHANCE = 0.5;
 const SURVIVE = 45; // seconds to last to clear the stage
 
-const BASKET_Y = GH - 60 * S;
+const BASKET_Y = GH - 70 * S;
 const BASKET_HALF = 42 * S;
+const BASKET_BOX = { w: 96, h: 108 }; // fit the catcher image into this box (design units)
 const ITEM_HALF = 20 * S;
 const MOVE_SPEED = 680 * S;
 
@@ -45,7 +46,8 @@ export class LootCatcher extends Phaser.Scene {
 	private spawnEvery = 900;
 	private sinceSpawn = 0;
 
-	private basket!: Phaser.GameObjects.Text;
+	private basket!: Phaser.GameObjects.Image;
+	private catchTimer?: Phaser.Time.TimerEvent;
 	private scoreText!: Phaser.GameObjects.Text;
 	private livesText!: Phaser.GameObjects.Text;
 	private timeText!: Phaser.GameObjects.Text;
@@ -62,6 +64,9 @@ export class LootCatcher extends Phaser.Scene {
 
 	preload() {
 		for (const r of REWARDS) this.load.image(r.key, "/loot-catcher/" + r.file);
+		this.load.image("lc-catcher", "/loot-catcher/catcher.png");
+		this.load.image("lc-catcher-caught", "/loot-catcher/catcher-caught.png");
+		this.load.image("lc-catcher-dizzy", "/loot-catcher/catcher-dizzy.png");
 	}
 
 	create() {
@@ -98,9 +103,8 @@ export class LootCatcher extends Phaser.Scene {
 			})
 			.setOrigin(1, 0);
 
-		this.basket = this.add
-			.text(GW / 2, BASKET_Y, "🧺", { fontSize: px(56), padding: { y: 8 } })
-			.setOrigin(0.5);
+		this.basket = this.add.image(GW / 2, BASKET_Y, "lc-catcher").setOrigin(0.5);
+		this.setBasketFrame("lc-catcher");
 
 		this.input.setDefaultCursor("none"); // basket follows the pointer; hide the OS cursor
 		this.cursors = this.input.keyboard!.createCursorKeys();
@@ -235,6 +239,7 @@ export class LootCatcher extends Phaser.Scene {
 
 			if (caught) {
 				this.resolveCatch(item);
+				this.flashCatch(item.bomb ? "lc-catcher-dizzy" : "lc-catcher-caught");
 				item.t.destroy();
 				item.label?.destroy();
 				this.items.splice(i, 1);
@@ -248,10 +253,28 @@ export class LootCatcher extends Phaser.Scene {
 		}
 	}
 
+	// swap the catcher image (idle / caught) and re-fit it into BASKET_BOX
+	private setBasketFrame(key: string) {
+		this.basket.setTexture(key);
+		const src = this.textures.get(key).getSourceImage();
+		this.basket.setScale(
+			Math.min((BASKET_BOX.w * S) / src.width, (BASKET_BOX.h * S) / src.height),
+		);
+	}
+
+	// briefly show a reaction frame (reward = caught, bug = dizzy), then return to idle
+	private flashCatch(key: string) {
+		this.setBasketFrame(key);
+		this.catchTimer?.remove();
+		this.catchTimer = this.time.delayedCall(220, () =>
+			this.setBasketFrame("lc-catcher"),
+		);
+	}
+
 	private loseLife() {
 		this.lives--;
 		this.livesText.setText("❤️".repeat(Math.max(0, this.lives)));
-		this.cameras.main.shake(150, 0.01);
+		this.cameras.main.shake(130, 0.005);
 		if (this.lives <= 0) this.gameOver();
 	}
 
