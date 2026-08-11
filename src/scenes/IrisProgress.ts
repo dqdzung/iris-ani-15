@@ -278,34 +278,38 @@ export class IrisProgress extends Phaser.Scene {
         alpha: 1,
         y: { from: anniv.y + 16 * U, to: anniv.y },
         duration: 600,
-        onComplete: () => {
-          this.celebrate();
-          this.armReplay();
-        },
+        onComplete: () => this.celebrate(), // arms replay only once it plays out
       });
     });
   }
 
-  // Closing celebration: confetti rain + a volley of firework bursts.
+  // Closing celebration: confetti rain + a volley of firework bursts. Replay is
+  // only armed once the whole show has played out (see the delayedCall below).
   private celebrate() {
     this.ensureTextures();
+    const CONFETTI_EMIT = 7500; // how long confetti keeps falling
+    const CONFETTI_LIFE = 4000; // + time for the last piece to reach the bottom
+    const FW_COUNT = 22;
+    const FW_GAP = 340; // fixed cadence → deterministic end time
+    const FW_LIFE = 1000;
+
     this.add.particles(0, -20, "ip-confetti", {
       x: { min: 0, max: vw(this) },
       y: -20,
       speedY: { min: 140, max: 300 },
       speedX: { min: -60, max: 60 },
-      lifespan: 4000,
+      lifespan: CONFETTI_LIFE,
       frequency: 50,
       quantity: 2,
       rotate: { min: 0, max: 360 },
       tint: CONFETTI,
       scale: { min: 0.7, max: 1.5 },
-      duration: 7500,
+      duration: CONFETTI_EMIT,
     });
 
     let n = 0;
     const boom = () => {
-      if (n++ >= 22) return;
+      if (n++ >= FW_COUNT) return;
       const x = Phaser.Math.Between(
         Math.round(vw(this) * 0.15),
         Math.round(vw(this) * 0.85),
@@ -317,7 +321,7 @@ export class IrisProgress extends Phaser.Scene {
       const e = this.add.particles(x, y, "ip-spark", {
         speed: { min: 80, max: 260 },
         angle: { min: 0, max: 360 },
-        lifespan: 1000,
+        lifespan: FW_LIFE,
         gravityY: 200,
         scale: { start: 1.1, end: 0 },
         tint: Phaser.Utils.Array.GetRandom(CONFETTI),
@@ -326,9 +330,16 @@ export class IrisProgress extends Phaser.Scene {
       });
       e.explode(40);
       this.time.delayedCall(1300, () => e.destroy());
-      this.time.delayedCall(Phaser.Math.Between(250, 520), boom);
+      this.time.delayedCall(FW_GAP, boom);
     };
     boom();
+
+    // don't let a tap replay until every firework/confetti has finished
+    const celebrationMs = Math.max(
+      CONFETTI_EMIT + CONFETTI_LIFE,
+      FW_COUNT * FW_GAP + FW_LIFE,
+    );
+    this.time.delayedCall(celebrationMs, () => this.armReplay());
   }
 
   private ensureTextures() {

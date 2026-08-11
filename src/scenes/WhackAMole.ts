@@ -2,17 +2,32 @@ import Phaser from "phaser";
 import { S, px } from "../config";
 import { fitStage, clearStage, retryStage } from "../stageUtils";
 
-// Stage 3 — Whack-a-Mole (ported from MiniGames). Clear = survive the 30s round.
+// Stage 2 — Whack-a-Mole (ported from MiniGames). Clear = survive the 30s round.
 // A bomb whack drains the clock; if it hits 0 early, that's a fail → retry.
 
 const GW = 480 * S;
 const GH = 540 * S; // grass below is a square (GW tall); the rest is a thin sky band
+
+// Field palette — dark & gold-accented to match the rest of the game. Tweak here.
+const SKY = 0x12141c; // top band (same dark as the intro/finale panels)
+const GROUND = 0x222717; // dark muted "grass"
+const HOLE_RIM = 0x4a3f22; // raised earth ring (gold-brown, nods to the accent)
+const HOLE_HOLLOW = 0x0c0e08; // near-black hollow
 
 const GAME_TIME = 30;
 const POP_INTERVAL = 595;
 const UP_TIME = 650;
 const BOMB_CHANCE = 0.2;
 const BOMB_PENALTY = 3;
+const REST_ANGLE = 40; // whacker resting tilt (raised, diagonal like the old hammer)
+const STRIKE_ANGLE = -20; // chops DOWN past horizontal on a swing (top → bottom)
+const BOSS_BOX = 84; // boss image is fit into this square (design units)
+// Boss (penalty) variants — one is picked at random (equal odds) each time a
+// penalty pops. Each has a normal frame and a whacked "dizzy" frame.
+const BOSSES = [
+  { normal: "wm-boss1", dizzy: "wm-boss1-dizzy" },
+  { normal: "wm-boss2", dizzy: "wm-boss2-dizzy" },
+];
 
 // symmetric 3×3 grid as fractions of the grass square → centered, evenly spaced
 const GRID = [0.25, 0.5, 0.75];
@@ -20,7 +35,10 @@ const GRID = [0.25, 0.5, 0.75];
 type Hole = {
   x: number;
   y: number;
-  mole: Phaser.GameObjects.Text;
+  mole: Phaser.GameObjects.Text; // the 👾 bug (reward target)
+  boss: Phaser.GameObjects.Image; // the boss (penalty, was the bomb)
+  bossKind: { normal: string; dizzy: string }; // which boss variant is on this pop
+  actor: Phaser.GameObjects.Text | Phaser.GameObjects.Image; // whichever is popped
   upY: number;
   downY: number;
   up: boolean;
@@ -30,7 +48,7 @@ type Hole = {
 };
 
 export class WhackAMole extends Phaser.Scene {
-  private stage = 4;
+  private stage = 2;
   private score = 0;
   private timeLeft = GAME_TIME;
   private over = false;
@@ -45,7 +63,14 @@ export class WhackAMole extends Phaser.Scene {
   }
 
   init(data: { stage?: number } = {}) {
-    this.stage = data.stage ?? 4;
+    this.stage = data.stage ?? 3;
+  }
+
+  preload() {
+    this.load.image("wm-boss1", "/whack-a-mole/boss1.png");
+    this.load.image("wm-boss1-dizzy", "/whack-a-mole/boss1-dizzy.png");
+    this.load.image("wm-boss2", "/whack-a-mole/boss2.png");
+    this.load.image("wm-boss2-dizzy", "/whack-a-mole/boss2-dizzy.png");
   }
 
   create() {
@@ -58,8 +83,8 @@ export class WhackAMole extends Phaser.Scene {
 
     // field: sky on top, grass fills the rest as a square (height == canvas width)
     const skyH = GH - GW;
-    this.add.rectangle(0, 0, GW, GH, 0x8fd0ef).setOrigin(0);
-    this.add.rectangle(0, skyH, GW, GH - skyH, 0x5fae3a).setOrigin(0);
+    this.add.rectangle(0, 0, GW, GH, SKY).setOrigin(0);
+    this.add.rectangle(0, skyH, GW, GH - skyH, GROUND).setOrigin(0);
 
     this.holes = [];
     for (const ry of GRID)
@@ -84,9 +109,10 @@ export class WhackAMole extends Phaser.Scene {
       .setDepth(50);
 
     this.hammer = this.add
-      .text(GW / 2, GH / 2, "🔨", { fontSize: px(52), padding: { y: 8 } })
+      .text(GW / 2, GH / 2, "⌨️", { fontSize: px(52), padding: { y: 8 } })
       .setOrigin(0.82, 0.85)
-      .setDepth(100);
+      .setDepth(100)
+      .setAngle(REST_ANGLE);
     const HEAD = 0.28;
     const offX = (0.82 - HEAD) * this.hammer.width,
       offY = (0.85 - HEAD) * this.hammer.height;
@@ -118,26 +144,35 @@ export class WhackAMole extends Phaser.Scene {
 
   private makeHole(x: number, y: number) {
     const g = this.add.graphics();
-    g.fillStyle(0x7a5433, 1);
+    g.fillStyle(HOLE_RIM, 1);
     g.fillEllipse(x, y + 8 * S, 108 * S, 52 * S);
-    g.fillStyle(0x341f0e, 1);
+    g.fillStyle(HOLE_HOLLOW, 1);
     g.fillEllipse(x, y, 82 * S, 34 * S);
 
     const upY = y - 22 * S,
       downY = y + 64 * S;
-    const mole = this.add
-      .text(x, downY, "🐹", { fontSize: px(46), padding: { y: 8 } })
-      .setOrigin(0.5, 0.5)
-      .setDepth(10);
     const maskG = this.make.graphics();
     maskG.fillStyle(0xffffff);
     maskG.fillRect(0, 0, GW, y + 6 * S);
-    mole.setMask(maskG.createGeometryMask());
+    const mask = maskG.createGeometryMask();
+
+    const mole = this.add
+      .text(x, downY, "👾", { fontSize: px(46), padding: { y: 8 } })
+      .setOrigin(0.5, 0.5)
+      .setDepth(10)
+      .setMask(mask);
+
+    // boss image (penalty) sits in the same hole, popped instead of the bug
+    const boss = this.add.image(x, downY, BOSSES[0].normal).setOrigin(0.5, 0.5).setDepth(10);
+    boss.setMask(mask);
 
     const hole: Hole = {
       x,
       y,
       mole,
+      boss,
+      bossKind: BOSSES[0],
+      actor: mole,
       upY,
       downY,
       up: false,
@@ -145,13 +180,23 @@ export class WhackAMole extends Phaser.Scene {
       bomb: false,
       duck: null,
     };
+    this.bossFrame(hole, hole.bossKind.normal); // set the boss image + its fit scale
     const pad = 16 * S;
-    mole.setInteractive(
-      new Phaser.Geom.Rectangle(-pad, -pad, mole.width + pad * 2, mole.height + pad * 2),
-      Phaser.Geom.Rectangle.Contains,
-    );
-    mole.on("pointerdown", () => this.whack(hole));
+    for (const o of [mole, boss] as const) {
+      o.setInteractive(
+        new Phaser.Geom.Rectangle(-pad, -pad, o.width + pad * 2, o.height + pad * 2),
+        Phaser.Geom.Rectangle.Contains,
+      );
+      o.on("pointerdown", () => this.whack(hole));
+    }
     this.holes.push(hole);
+  }
+
+  // swap the boss texture (normal / dizzy) and re-fit it into BOSS_BOX
+  private bossFrame(h: Hole, key: string) {
+    h.boss.setTexture(key);
+    const src = this.textures.get(key).getSourceImage();
+    h.boss.setScale(Math.min((BOSS_BOX * S) / src.width, (BOSS_BOX * S) / src.height));
   }
 
   private popRandom() {
@@ -160,11 +205,15 @@ export class WhackAMole extends Phaser.Scene {
     if (!down.length) return;
     const h = Phaser.Utils.Array.GetRandom(down);
     h.bomb = Math.random() < BOMB_CHANCE;
-    h.mole.setText(h.bomb ? "💣" : "🐹");
+    if (h.bomb) {
+      h.bossKind = Phaser.Utils.Array.GetRandom(BOSSES); // equal odds boss1 / boss2
+      this.bossFrame(h, h.bossKind.normal);
+    }
+    h.actor = h.bomb ? h.boss : h.mole; // pop the boss (penalty) or the bug
     h.up = true;
     h.moving = true;
     this.tweens.add({
-      targets: h.mole,
+      targets: h.actor,
       y: h.upY,
       duration: 130,
       ease: "Back.easeOut",
@@ -179,7 +228,7 @@ export class WhackAMole extends Phaser.Scene {
     h.moving = true;
     if (h.duck) h.duck.remove();
     this.tweens.add({
-      targets: h.mole,
+      targets: h.actor,
       y: h.downY,
       duration: 110,
       ease: "Quad.easeIn",
@@ -194,8 +243,24 @@ export class WhackAMole extends Phaser.Scene {
       this.timeText.setText("Time: " + this.timeLeft);
       this.boom(h.x, h.upY, "💥", 56);
       this.penaltyPop(h.x, h.upY);
-      this.cameras.main.shake(180, 0.012);
-      this.duckHole(h);
+      this.cameras.main.shake(140, 0.006);
+      // show the dizzy boss frame, hold a beat, then duck it and reset to normal
+      this.bossFrame(h, h.bossKind.dizzy);
+      h.up = false; // no more whacks on this pop
+      h.moving = true;
+      if (h.duck) h.duck.remove();
+      this.time.delayedCall(350, () => {
+        this.tweens.add({
+          targets: h.boss,
+          y: h.downY,
+          duration: 110,
+          ease: "Quad.easeIn",
+          onComplete: () => {
+            h.moving = false;
+            this.bossFrame(h, h.bossKind.normal);
+          },
+        });
+      });
       if (this.timeLeft <= 0) this.endGame(false); // bomb ran the clock out → fail
       return;
     }
@@ -220,13 +285,13 @@ export class WhackAMole extends Phaser.Scene {
       ease: "Back.easeOut",
     });
     this.tweens.add({
-      targets: [h.mole, dizzy],
+      targets: [h.actor, dizzy],
       alpha: 0,
       duration: 160,
       delay: 110,
       onComplete: () => {
         dizzy.destroy();
-        h.mole.setAlpha(1).setY(h.downY);
+        h.actor.setAlpha(1).setY(h.downY);
         h.moving = false;
       },
     });
@@ -236,7 +301,7 @@ export class WhackAMole extends Phaser.Scene {
     const t = this.add
       .text(x, y - 6 * S, "-" + BOMB_PENALTY + "s", {
         fontSize: px(22),
-        color: "#ff5a5a",
+        color: "#ef476f",
         fontStyle: "bold",
         padding: { y: 6 },
       })
@@ -273,10 +338,10 @@ export class WhackAMole extends Phaser.Scene {
 
   private swing() {
     this.tweens.killTweensOf(this.hammer);
-    this.hammer.setAngle(0);
+    this.hammer.setAngle(REST_ANGLE);
     this.tweens.add({
       targets: this.hammer,
-      angle: -55,
+      angle: STRIKE_ANGLE, // chop down from the resting tilt, then back
       duration: 55,
       yoyo: true,
       ease: "Quad.easeOut",
@@ -299,7 +364,7 @@ export class WhackAMole extends Phaser.Scene {
       .rectangle(GW / 2, GH / 2, GW, GH, 0x000000, 0.75)
       .setDepth(90);
     this.add
-      .text(GW / 2, GH / 2 - 26 * S, survived ? "Cleared! ⛳" : "Boom! 💥", {
+      .text(GW / 2, GH / 2 - 26 * S, survived ? "Cleared! ⛳" : "Urgh! 💥", {
         fontSize: px(34),
         color: "#fff",
         fontStyle: "bold",
@@ -312,7 +377,7 @@ export class WhackAMole extends Phaser.Scene {
       this.add
         .text(GW / 2, GH / 2 + 30 * S, "Score: " + this.score, {
           fontSize: px(18),
-          color: "#aab",
+          color: "#8a8fa3",
           align: "center",
           padding: { y: 6 },
         })
@@ -321,9 +386,9 @@ export class WhackAMole extends Phaser.Scene {
       this.time.delayedCall(900, () => clearStage(this, this.stage));
     } else {
       this.add
-        .text(GW / 2, GH / 2 + 24 * S, "A bomb ran down the clock", {
+        .text(GW / 2, GH / 2 + 24 * S, "You're fired for whacking the bosses too much", {
           fontSize: px(16),
-          color: "#aab",
+          color: "#8a8fa3",
           padding: { y: 6 },
         })
         .setOrigin(0.5)
