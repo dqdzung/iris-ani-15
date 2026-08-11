@@ -21,12 +21,6 @@ export const STAGES = [
     lock: true,
   },
   {
-    key: "SlidingPuzzle",
-    title: "Sliding Puzzle",
-    how: "Slide the pieces next to the gap to rebuild the picture.",
-    lock: false,
-  },
-  {
     key: "WhackAMole",
     title: "Whack-a-Mole",
     how: "Bop the moles, avoid the bombs. Last the whole round.",
@@ -34,8 +28,14 @@ export const STAGES = [
   },
   {
     key: "Stage",
-    title: "The Summit",
-    how: "One final push to the top.",
+    title: "Coming Soon",
+    how: "A new game is in the works — tap to clear it for now.",
+    lock: false,
+  },
+  {
+    key: "SlidingPuzzle",
+    title: "Sliding Puzzle",
+    how: "Slide the pieces next to the gap to rebuild the picture.",
     lock: false,
   },
 ];
