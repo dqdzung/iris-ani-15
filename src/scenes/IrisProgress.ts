@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { vw, vh, u, fs } from "../layout";
 import { showOverworld } from "../overworld";
 import { playBootScreen } from "../bootScreen";
+import { FONT } from "../config";
 
 // Between-game transition: shows "IRIS", lighting one more letter for each game
 // cleared. On the final game it lights the remaining letters and celebrates with
@@ -10,7 +11,7 @@ import { playBootScreen } from "../bootScreen";
 //   { animFrom } — index of the first letter to animate on (earlier ones start lit)
 //   { finale }   — light everything + party, then "play again"
 
-const MONO = '"SFMono-Regular", ui-monospace, Menlo, monospace';
+const MONO = FONT;
 const GOLD = "#ffd166";
 const DIM = 0x4a4a3a;
 const LIT = { r: 0xff, g: 0xd1, b: 0x66 };
@@ -288,7 +289,7 @@ export class IrisProgress extends Phaser.Scene {
   private celebrate() {
     this.ensureTextures();
     const CONFETTI_EMIT = 7500; // how long confetti keeps falling
-    const CONFETTI_LIFE = 4000; // + time for the last piece to reach the bottom
+    const CONFETTI_LIFE = 5000; // + time for the last piece to reach the bottom
     const FW_COUNT = 22;
     const FW_GAP = 340; // fixed cadence → deterministic end time
     const FW_LIFE = 1000;
@@ -296,8 +297,9 @@ export class IrisProgress extends Phaser.Scene {
     this.add.particles(0, -20, "ip-confetti", {
       x: { min: 0, max: vw(this) },
       y: -20,
-      speedY: { min: 140, max: 300 },
+      speedY: { min: 180, max: 360 },
       speedX: { min: -60, max: 60 },
+      gravityY: 140, // accelerate so it reaches the bottom of any screen
       lifespan: CONFETTI_LIFE,
       frequency: 50,
       quantity: 2,
@@ -311,12 +313,12 @@ export class IrisProgress extends Phaser.Scene {
     const boom = () => {
       if (n++ >= FW_COUNT) return;
       const x = Phaser.Math.Between(
-        Math.round(vw(this) * 0.15),
-        Math.round(vw(this) * 0.85),
+        Math.round(vw(this) * 0.08),
+        Math.round(vw(this) * 0.92),
       );
       const y = Phaser.Math.Between(
-        Math.round(vh(this) * 0.12),
-        Math.round(vh(this) * 0.45),
+        Math.round(vh(this) * 0.1),
+        Math.round(vh(this) * 0.85),
       );
       const e = this.add.particles(x, y, "ip-spark", {
         speed: { min: 80, max: 260 },

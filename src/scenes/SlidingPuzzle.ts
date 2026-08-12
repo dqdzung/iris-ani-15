@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { S, px } from "../config";
+import { S, px, FONT } from "../config";
 import { fitStage, clearStage } from "../stageUtils";
 
 // Stage 2 — Sliding Puzzle (ported from MiniGames). Reassemble the picture; win = solved.
@@ -159,7 +159,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 
 		this.add
 			.text(GW / 2, 18 * S, "Sliding Puzzle", {
-				fontSize: px(22),
+				fontFamily: FONT, fontSize: px(22),
 				color: "#fff",
 				fontStyle: "bold",
 				padding: { y: 6 },
@@ -167,7 +167,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			.setOrigin(0.5, 0);
 		this.movesText = this.add
 			.text(MARGIN, 66 * S, "Moves: 0", {
-				fontSize: px(18),
+				fontFamily: FONT, fontSize: px(18),
 				color: "#ffd166",
 				fontStyle: "bold",
 				padding: { y: 6 },
@@ -175,7 +175,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			.setOrigin(0, 0.5);
 		this.parText = this.add
 			.text(GW / 2, 66 * S, "Par: —", {
-				fontSize: px(16),
+				fontFamily: FONT, fontSize: px(16),
 				color: "#8fb3d9",
 				fontStyle: "bold",
 				padding: { y: 6 },
@@ -196,7 +196,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 				GW / 2,
 				GH - BOT_BAR / 2,
 				"Tap a piece next to the gap — or use arrow keys",
-				{ fontSize: px(13), color: "#889", padding: { y: 4 } },
+				{ fontFamily: FONT, fontSize: px(13), color: "#889", padding: { y: 4 } },
 			)
 			.setOrigin(0.5);
 
@@ -258,7 +258,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			img.on("pointerdown", () => this.tapTile(v));
 			const label = this.add
 				.text(0, 0, String(v), {
-					fontSize: px(14),
+					fontFamily: FONT, fontSize: px(14),
 					color: "#ffffff",
 					fontStyle: "bold",
 					padding: { x: 2, y: 1 },
@@ -426,7 +426,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 		this.add.rectangle(GW / 2, GH / 2, GW, GH, 0x000000, 0.68).setDepth(10);
 		this.add
 			.text(GW / 2, GH / 2 - 24 * S, "Solved! 🧩", {
-				fontSize: px(34),
+				fontFamily: FONT, fontSize: px(34),
 				color: "#fff",
 				fontStyle: "bold",
 				padding: { y: 8 },
@@ -435,7 +435,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			.setDepth(11);
 		this.add
 			.text(GW / 2, GH / 2 + 22 * S, `${this.moves} moves`, {
-				fontSize: px(16),
+				fontFamily: FONT, fontSize: px(16),
 				color: "#aab",
 				padding: { y: 6 },
 			})

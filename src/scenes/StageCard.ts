@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { STAGES } from "../config";
+import { STAGES, FONT } from "../config";
 import { vw, vh, u, fs } from "../layout";
 import { showOverworld } from "../overworld";
 
@@ -41,7 +41,7 @@ export class StageCard extends Phaser.Scene {
     this.add.circle(cx, badgeY, 30 * U, 0x12141c).setStrokeStyle(3 * U, 0xffd166);
     const badge = this.add
       .text(cx, badgeY, label, {
-        fontFamily: '"SFMono-Regular", ui-monospace, Menlo, monospace',
+        fontFamily: FONT,
         fontSize: fs(this, 30),
         color: "#ffd166",
         fontStyle: "bold",
@@ -59,6 +59,7 @@ export class StageCard extends Phaser.Scene {
     if (this.mode === "intro") {
       this.add
         .text(cx, cy - 40 * U, info.title, {
+          fontFamily: FONT, // VN-friendly (titles/how may be Vietnamese)
           fontSize: fs(this, 42),
           color: "#ffffff",
           fontStyle: "bold",
@@ -66,6 +67,7 @@ export class StageCard extends Phaser.Scene {
         .setOrigin(0.5);
       this.add
         .text(cx, cy + 20 * U, info.how, {
+          fontFamily: FONT,
           fontSize: fs(this, 18),
           color: "#8a8fa3",
           align: "center",
@@ -75,6 +77,7 @@ export class StageCard extends Phaser.Scene {
     } else {
       this.add
         .text(cx, cy - 10 * U, info.title, {
+          fontFamily: FONT,
           fontSize: fs(this, 30),
           color: "#8a8fa3",
           fontStyle: "bold",
@@ -82,6 +85,7 @@ export class StageCard extends Phaser.Scene {
         .setOrigin(0.5);
       this.add
         .text(cx, cy + 40 * U, "Cleared! ⛳", {
+          fontFamily: FONT,
           fontSize: fs(this, 44),
           color: "#ffd166",
           fontStyle: "bold",
@@ -94,7 +98,7 @@ export class StageCard extends Phaser.Scene {
         cx,
         cy + 130 * U,
         this.mode === "intro" ? "tap to begin" : "tap to continue",
-        { fontSize: fs(this, 20), color: "#ffd166" },
+        { fontFamily: FONT, fontSize: fs(this, 20), color: "#ffd166" },
       )
       .setOrigin(0.5);
     this.tweens.add({

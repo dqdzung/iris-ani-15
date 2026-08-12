@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { S, px } from "../config";
+import { S, px, FONT } from "../config";
 import { fitStage, clearStage, retryStage } from "../stageUtils";
 
 // Stage 1 — Loot Catcher (ported from MiniGames). Move the basket to catch rewards,
@@ -88,14 +88,14 @@ export class LootCatcher extends Phaser.Scene {
 		this.add.rectangle(0, 0, GW, GH, 0x16213e).setOrigin(0); // game panel
 
 		this.scoreText = this.add.text(16 * S, 12 * S, "Score: 0", {
-			fontSize: px(20),
+			fontFamily: FONT, fontSize: px(20),
 			color: "#ffd166",
 			fontStyle: "bold",
 			padding: { y: 6 },
 		});
 		this.timeText = this.add
 			.text(GW / 2, 12 * S, "⏱ " + this.timeLeft, {
-				fontSize: px(20),
+				fontFamily: FONT, fontSize: px(20),
 				color: "#8fd0ef",
 				fontStyle: "bold",
 				padding: { y: 6 },
@@ -103,7 +103,7 @@ export class LootCatcher extends Phaser.Scene {
 			.setOrigin(0.5, 0);
 		this.livesText = this.add
 			.text(GW - 16 * S, 12 * S, "❤️".repeat(this.lives), {
-				fontSize: px(20),
+				fontFamily: FONT, fontSize: px(20),
 				padding: { y: 6 },
 			})
 			.setOrigin(1, 0);
@@ -117,7 +117,7 @@ export class LootCatcher extends Phaser.Scene {
 
 		this.add
 			.text(GW / 2, GH - 20 * S, "← → or move mouse · survive the clock", {
-				fontSize: px(13),
+				fontFamily: FONT, fontSize: px(13),
 				color: "#889",
 				padding: { y: 4 },
 			})
@@ -189,7 +189,7 @@ export class LootCatcher extends Phaser.Scene {
 		let t: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
 		if (isBomb) {
 			t = this.add
-				.text(x, -ITEM_HALF, BUG, { fontSize: px(34), padding: { y: 6 } })
+				.text(x, -ITEM_HALF, BUG, { fontFamily: FONT, fontSize: px(34), padding: { y: 6 } })
 				.setOrigin(0.5);
 		} else {
 			const img = this.add.image(x, -ITEM_HALF, reward!.key).setOrigin(0.5);
@@ -203,7 +203,7 @@ export class LootCatcher extends Phaser.Scene {
 			? null
 			: this.add
 					.text(x, t.y + 22 * S, "+" + value, {
-						fontSize: px(13),
+						fontFamily: FONT, fontSize: px(13),
 						color: "#ffd166",
 						fontStyle: "bold",
 						padding: { y: 2 },
@@ -310,7 +310,7 @@ export class LootCatcher extends Phaser.Scene {
 		this.clearItems();
 		this.add
 			.text(GW / 2, GH / 2, "Made it! 🎉", {
-				fontSize: px(34),
+				fontFamily: FONT, fontSize: px(34),
 				color: "#ffd166",
 				fontStyle: "bold",
 				padding: { y: 8 },
@@ -327,7 +327,7 @@ export class LootCatcher extends Phaser.Scene {
 		this.add.rectangle(GW / 2, GH / 2, GW, GH, 0x000000, 0.75);
 		this.add
 			.text(GW / 2, GH / 2 - 24 * S, "Game Over 💥", {
-				fontSize: px(36),
+				fontFamily: FONT, fontSize: px(36),
 				color: "#fff",
 				fontStyle: "bold",
 				padding: { y: 8 },
@@ -335,7 +335,7 @@ export class LootCatcher extends Phaser.Scene {
 			.setOrigin(0.5);
 		this.add
 			.text(GW / 2, GH / 2 + 22 * S, `Lasted ${SURVIVE - this.timeLeft}s`, {
-				fontSize: px(18),
+				fontFamily: FONT, fontSize: px(18),
 				color: "#aab",
 				padding: { y: 6 },
 			})
@@ -345,7 +345,7 @@ export class LootCatcher extends Phaser.Scene {
 			.setInteractive({ useHandCursor: true });
 		this.add
 			.text(GW / 2, GH / 2 + 76 * S, "Try Again", {
-				fontSize: px(20),
+				fontFamily: FONT, fontSize: px(20),
 				color: "#12141c",
 				fontStyle: "bold",
 				padding: { y: 6 },

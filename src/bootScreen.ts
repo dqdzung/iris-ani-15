@@ -4,10 +4,12 @@
 // click everything fades except the first "I" of I R I S, which zooms in to
 // fill the screen and then launches the first game (fires onStart).
 
+import { FONT } from "./config";
+
 const CSS = `
 #boot {
   position: fixed; inset: 0; z-index: 40; background: #0a0b0a; color: #d6d6d6;
-  font: 400 clamp(16px, 2.9vw, 24px)/1.55 "SFMono-Regular", ui-monospace, "Menlo", monospace;
+  font: 400 clamp(16px, 2.9vw, 24px)/1.55 ${FONT};
   padding: clamp(18px, 5vw, 60px); overflow: hidden; cursor: pointer;
   text-shadow: 0 0 2px rgba(120,255,160,.25);
   animation: bootFlicker .12s steps(2) infinite;

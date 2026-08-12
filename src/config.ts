@@ -7,6 +7,10 @@
 export const S = 2;
 export const px = (n: number) => `${n * S}px`;
 
+// Vietnamese-friendly monospace (loaded in index.html) for in-game copy that may
+// contain Vietnamese. SFMono renders VN diacritics poorly; JetBrains Mono doesn't.
+export const FONT = '"JetBrains Mono", ui-monospace, "Menlo", monospace';
+
 export const GAME_W = 960; // design units
 export const GAME_H = 540;
 export const STAGE_COUNT = 4;
@@ -14,28 +18,30 @@ export const STAGE_COUNT = 4;
 // Per-stage metadata: which scene runs it + the intro-card copy. Index = stage - 1.
 // `lock` = engage Pointer Lock on the start-screen click (relative mouse control).
 export const STAGES = [
-  {
-    key: "LootCatcher",
-    title: "Loot Catcher",
-    how: "Move the basket to catch the loot and dodge bombs. Survive the clock.",
-    lock: true,
-  },
-  {
-    key: "SlidingPuzzle",
-    title: "Sliding Puzzle",
-    how: "Slide the pieces next to the gap to rebuild the picture.",
-    lock: false,
-  },
-  {
-    key: "PipeConnect",
-    title: "Pipe Connect",
-    how: "Rotate the pipe segments to link the crisis inlet to the solution outlet.",
-    lock: false,
-  },
-  {
-    key: "WhackAMole",
-    title: "Whack-a-Mole",
-    how: "Bop the bugs, avoid the boss. Last the whole round.",
-    lock: false,
-  },
+	{
+		key: "LootCatcher",
+		title: "Loot Catcher",
+		how: "Move the basket to catch the loot and dodge bombs. Survive the clock.",
+		lock: true,
+	},
+	{
+		key: "SlidingPuzzle",
+		title: "Sliding Puzzle",
+		how: "Slide the pieces next to the gap to rebuild the picture.",
+		lock: false,
+	},
+	{
+		key: "PipeConnect",
+		title: "Kết Nối Sáng Tạo",
+		how: "Xoay các đoạn ống để khơi thông luồng chảy kết nối từ Khủng hoảng đến Giải pháp.",
+
+		lock: false,
+	},
+	{
+		key: "WhackAMole",
+		title: "Whack-a-Mole",
+		how: "Bop the bugs, avoid the boss. Last the whole round.",
+		lock: false,
+	},
 ];
+

@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { vw, vh, u, fs } from "../layout";
+import { FONT } from "../config";
 import { showOverworld } from "../overworld";
 
 export class Final extends Phaser.Scene {
@@ -13,7 +14,7 @@ export class Final extends Phaser.Scene {
       U = u(this);
     this.add
       .text(cx, cy - 30 * U, "You finished!", {
-        fontSize: fs(this, 52),
+        fontFamily: FONT, fontSize: fs(this, 52),
         color: "#ffd166",
         fontStyle: "bold",
       })
@@ -21,7 +22,7 @@ export class Final extends Phaser.Scene {
 
     this.add
       .text(cx, cy + 40 * U, "click to play again", {
-        fontSize: fs(this, 20),
+        fontFamily: FONT, fontSize: fs(this, 20),
         color: "#8a8fa3",
       })
       .setOrigin(0.5);

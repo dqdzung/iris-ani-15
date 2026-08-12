@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { S, px } from "../config";
+import { S, px, FONT } from "../config";
 import { fitStage, clearStage } from "../stageUtils";
 
 // Stage 3 — Pipe Connect. Rotate pipe segments to link the "crisis" inlet to the
@@ -136,8 +136,8 @@ const PANEL_COLOR = 0x111a44;
 const TEXT_HI = "#EAF1FB",
   TEXT_MID = "#8FA3C2",
   GOLD = "#FFD166";
-// Signature game font (boot / IRIS / StageCard use this same stack).
-const MONO = '"SFMono-Regular", ui-monospace, Menlo, monospace';
+// Vietnamese-friendly monospace (this scene's copy is in Vietnamese).
+const MONO = FONT;
 
 function drawSpokeSet(g: Phaser.GameObjects.Graphics, dirs: Dir[], halfLen: number, w: number, color: number) {
   g.fillStyle(color, 1);

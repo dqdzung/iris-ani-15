@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { S, px } from "../config";
+import { S, px, FONT } from "../config";
 import { fitStage, clearStage, retryStage } from "../stageUtils";
 
 // Stage 4 — Whack-a-Mole (ported from MiniGames). Clear = survive the 30s round.
@@ -92,7 +92,7 @@ export class WhackAMole extends Phaser.Scene {
 
     this.scoreText = this.add
       .text(16 * S, 12 * S, "Score: 0", {
-        fontSize: px(20),
+        fontFamily: FONT, fontSize: px(20),
         color: "#ffd166",
         fontStyle: "bold",
         padding: { y: 6 },
@@ -100,7 +100,7 @@ export class WhackAMole extends Phaser.Scene {
       .setDepth(50);
     this.timeText = this.add
       .text(GW - 16 * S, 12 * S, "Time: " + GAME_TIME, {
-        fontSize: px(20),
+        fontFamily: FONT, fontSize: px(20),
         color: "#ffd166",
         fontStyle: "bold",
         padding: { y: 6 },
@@ -109,7 +109,7 @@ export class WhackAMole extends Phaser.Scene {
       .setDepth(50);
 
     this.hammer = this.add
-      .text(GW / 2, GH / 2, "⌨️", { fontSize: px(52), padding: { y: 8 } })
+      .text(GW / 2, GH / 2, "⌨️", { fontFamily: FONT, fontSize: px(52), padding: { y: 8 } })
       .setOrigin(0.82, 0.85)
       .setDepth(100)
       .setAngle(REST_ANGLE);
@@ -157,7 +157,7 @@ export class WhackAMole extends Phaser.Scene {
     const mask = maskG.createGeometryMask();
 
     const mole = this.add
-      .text(x, downY, "👾", { fontSize: px(46), padding: { y: 8 } })
+      .text(x, downY, "👾", { fontFamily: FONT, fontSize: px(46), padding: { y: 8 } })
       .setOrigin(0.5, 0.5)
       .setDepth(10)
       .setMask(mask);
@@ -274,7 +274,7 @@ export class WhackAMole extends Phaser.Scene {
     h.up = false;
     h.moving = true;
     const dizzy = this.add
-      .text(h.x, h.upY - 6 * S, "💫", { fontSize: px(24), padding: { y: 8 } })
+      .text(h.x, h.upY - 6 * S, "💫", { fontFamily: FONT, fontSize: px(24), padding: { y: 8 } })
       .setOrigin(0.45)
       .setAngle(-45)
       .setDepth(20);
@@ -300,7 +300,7 @@ export class WhackAMole extends Phaser.Scene {
   private penaltyPop(x: number, y: number) {
     const t = this.add
       .text(x, y - 6 * S, "-" + BOMB_PENALTY + "s", {
-        fontSize: px(22),
+        fontFamily: FONT, fontSize: px(22),
         color: "#ef476f",
         fontStyle: "bold",
         padding: { y: 6 },
@@ -324,7 +324,7 @@ export class WhackAMole extends Phaser.Scene {
 
   private boom(x: number, y: number, symbol: string, size = 40) {
     const b = this.add
-      .text(x, y, symbol, { fontSize: px(size), padding: { y: 8 } })
+      .text(x, y, symbol, { fontFamily: FONT, fontSize: px(size), padding: { y: 8 } })
       .setOrigin(0.5)
       .setDepth(80);
     this.tweens.add({
@@ -365,7 +365,7 @@ export class WhackAMole extends Phaser.Scene {
       .setDepth(90);
     this.add
       .text(GW / 2, GH / 2 - 26 * S, survived ? "Cleared! ⛳" : "Urgh! 💥", {
-        fontSize: px(34),
+        fontFamily: FONT, fontSize: px(34),
         color: "#fff",
         fontStyle: "bold",
         padding: { y: 8 },
@@ -376,7 +376,7 @@ export class WhackAMole extends Phaser.Scene {
     if (survived) {
       this.add
         .text(GW / 2, GH / 2 + 30 * S, "Score: " + this.score, {
-          fontSize: px(18),
+          fontFamily: FONT, fontSize: px(18),
           color: "#8a8fa3",
           align: "center",
           padding: { y: 6 },
@@ -387,7 +387,7 @@ export class WhackAMole extends Phaser.Scene {
     } else {
       this.add
         .text(GW / 2, GH / 2 + 24 * S, "You're fired for whacking the bosses too much", {
-          fontSize: px(16),
+          fontFamily: FONT, fontSize: px(16),
           color: "#8a8fa3",
           padding: { y: 6 },
         })
@@ -399,7 +399,7 @@ export class WhackAMole extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       this.add
         .text(GW / 2, GH / 2 + 74 * S, "Try Again", {
-          fontSize: px(20),
+          fontFamily: FONT, fontSize: px(20),
           color: "#12141c",
           fontStyle: "bold",
           padding: { y: 6 },
