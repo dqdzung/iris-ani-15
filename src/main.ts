@@ -4,7 +4,6 @@ import { StageCard } from "./scenes/StageCard";
 import { LootCatcher } from "./scenes/LootCatcher";
 import { SlidingPuzzle } from "./scenes/SlidingPuzzle";
 import { WhackAMole } from "./scenes/WhackAMole";
-import { Stage } from "./scenes/Stage";
 import { Final } from "./scenes/Final";
 import { IrisProgress } from "./scenes/IrisProgress";
 import { initOverworld, showOverworld } from "./overworld";

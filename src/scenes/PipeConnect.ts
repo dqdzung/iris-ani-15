@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { S, px } from "../config";
 import { fitStage, clearStage } from "../stageUtils";
 
-// Stage — Pipe Connect. Rotate pipe segments to link the "crisis" inlet to the
+// Stage 3 — Pipe Connect. Rotate pipe segments to link the "crisis" inlet to the
 // "solution" outlet. Two independent branches run through the grid — solving
 // either one (in full) clears the stage. Decoy segments fill the rest of the
 // grid purely as noise; they rotate but never affect the win check.
@@ -131,10 +131,10 @@ const STEEL_RIM = 0x0c1626,
   STEEL_HI = 0xc9d3e0;
 const FLANGE_COLOR = 0x8a97a8,
   BOLT_COLOR = 0x0c1626;
-const WATER_B = 0x22c7a9;
-const PANEL_COLOR = 0x111a44;
-const TEXT_HI = "#EAF1FB",
-  TEXT_MID = "#8FA3C2",
+const WATER_B = 0xffd166; // "flow" glow — gold, the game-wide accent
+const PANEL_COLOR = 0x16213e; // matches the Loot Catcher / Sliding Puzzle panels
+const TEXT_HI = "#f0f0f0",
+  TEXT_MID = "#8a8fa3", // the shared muted-slate text color
   GOLD = "#FFD166";
 
 function drawSpokeSet(g: Phaser.GameObjects.Graphics, dirs: Dir[], halfLen: number, w: number, color: number) {
@@ -277,32 +277,33 @@ export class PipeConnect extends Phaser.Scene {
     this.decoys = [];
 
     fitStage(this, GW, GH);
-    this.add.rectangle(0, 0, GW, GH, 0x0a0f2e).setOrigin(0); // stage backdrop
+    this.add.rectangle(0, 0, GW, GH, 0x0d0f16).setOrigin(0); // stage backdrop (matches the framed sides)
 
-    this.add
-      .text(GW / 2, 16 * S, "CHỮ I — INNOVATION", {
-        fontSize: px(12),
-        color: "#2FE0FF",
-        fontStyle: "600",
-        padding: { y: 4 },
-      })
-      .setOrigin(0.5);
-    this.add
-      .text(GW / 2, 42 * S, "Nối Dòng Chảy Sáng Tạo", {
-        fontSize: px(26),
-        color: TEXT_HI,
-        fontStyle: "700",
-        padding: { y: 6 },
-      })
-      .setOrigin(0.5);
-    this.add
-      .text(
-        GW / 2,
-        78 * S,
-        "Xoay các đoạn ống để khơi thông luồng chảy — mọi ô trên bàn cờ đều có ống, nhưng chỉ một số ống\nthực sự nối được từ Khủng hoảng đến Giải pháp. Có nhiều nhánh khác nhau để hoàn thành, chỉ cần\nthông một nhánh trước khi hết giờ.",
-        { fontSize: px(13), color: TEXT_MID, align: "center", padding: { y: 4 } },
-      )
-      .setOrigin(0.5);
+    // Header text — commented out for now, to be relocated later.
+    // this.add
+    //   .text(GW / 2, 16 * S, "CHỮ I — INNOVATION", {
+    //     fontSize: px(12),
+    //     color: "#2FE0FF",
+    //     fontStyle: "600",
+    //     padding: { y: 4 },
+    //   })
+    //   .setOrigin(0.5);
+    // this.add
+    //   .text(GW / 2, 42 * S, "Nối Dòng Chảy Sáng Tạo", {
+    //     fontSize: px(26),
+    //     color: TEXT_HI,
+    //     fontStyle: "700",
+    //     padding: { y: 6 },
+    //   })
+    //   .setOrigin(0.5);
+    // this.add
+    //   .text(
+    //     GW / 2,
+    //     78 * S,
+    //     "Xoay các đoạn ống để khơi thông luồng chảy — mọi ô trên bàn cờ đều có ống, nhưng chỉ một số ống\nthực sự nối được từ Khủng hoảng đến Giải pháp. Có nhiều nhánh khác nhau để hoàn thành, chỉ cần\nthông một nhánh trước khi hết giờ.",
+    //     { fontSize: px(13), color: TEXT_MID, align: "center", padding: { y: 4 } },
+    //   )
+    //   .setOrigin(0.5);
 
     this.add.graphics().fillStyle(PANEL_COLOR, 1).fillRoundedRect(PANEL_X, PANEL_Y, PANEL_W, PANEL_H, 18 * S);
 
@@ -522,7 +523,7 @@ export class PipeConnect extends Phaser.Scene {
       return cellCenter(cell.row, cell.col);
     });
 
-    const spark = this.add.circle(waypoints[0].x, waypoints[0].y, 8 * S, 0x2fe0ff).setDepth(50);
+    const spark = this.add.circle(waypoints[0].x, waypoints[0].y, 8 * S, 0xffd166).setDepth(50);
     this.board.add(spark);
     let i = 0;
     const next = () => {
@@ -547,7 +548,7 @@ export class PipeConnect extends Phaser.Scene {
   }
 
   private launchConfetti() {
-    const colors = [0x22c7a9, 0x2e6be6, 0xffd166, 0xeaf1fb, 0x2fe0ff];
+    const colors = [0xffd166, 0xef476f, 0x06d6a0, 0x118ab2, 0xffffff];
     for (let i = 0; i < 70; i++) {
       const w = (5 + Math.random() * 5) * S;
       const h = w * 1.6;

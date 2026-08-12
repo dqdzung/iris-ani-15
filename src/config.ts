@@ -28,15 +28,14 @@ export const STAGES = [
   },
   {
     key: "PipeConnect",
-    title: "PipeConnect",
-    how: "One final push to the top.",
+    title: "Pipe Connect",
+    how: "Rotate the pipe segments to link the crisis inlet to the solution outlet.",
     lock: false,
   },
   {
     key: "WhackAMole",
     title: "Whack-a-Mole",
-    how: "Bop the moles, avoid the bombs. Last the whole round.",
+    how: "Bop the bugs, avoid the boss. Last the whole round.",
     lock: false,
   },
-
 ];
