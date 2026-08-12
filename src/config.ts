@@ -20,27 +20,26 @@ export const STAGE_COUNT = 4;
 export const STAGES = [
 	{
 		key: "LootCatcher",
-		title: "Loot Catcher",
-		how: "Move the basket to catch the loot and dodge bombs. Survive the clock.",
+		title: "Hứng Trọn Ý Tưởng",
+		how: "Hứng lấy những ý tưởng giá trị, né bọ lỗi.",
 		lock: true,
 	},
 	{
-		key: "SlidingPuzzle",
-		title: "Sliding Puzzle",
-		how: "Slide the pieces next to the gap to rebuild the picture.",
+		key: "WhackAMole",
+		title: "Trọng Người, Trị Lỗi",
+		how: "Đập tan bọ lỗi, nể mặt sếp lớn.",
 		lock: false,
 	},
 	{
 		key: "PipeConnect",
 		title: "Kết Nối Sáng Tạo",
 		how: "Xoay các đoạn ống để khơi thông luồng chảy kết nối từ Khủng hoảng đến Giải pháp.",
-
 		lock: false,
 	},
 	{
-		key: "WhackAMole",
-		title: "Whack-a-Mole",
-		how: "Bop the bugs, avoid the boss. Last the whole round.",
+		key: "SlidingPuzzle",
+		title: "Ghép Nên Đoàn Kết",
+		how: "Trượt từng mảnh về đúng chỗ, ghép lại bức tranh chung của cả tập thể.",
 		lock: false,
 	},
 ];

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { S, px, FONT } from "../config";
 import { fitStage, clearStage } from "../stageUtils";
 
-// Stage 2 — Sliding Puzzle (ported from MiniGames). Reassemble the picture; win = solved.
+// Stage 4 — Sliding Puzzle (ported from MiniGames). Reassemble the picture; win = solved.
 // No fail state, so no retry. Authored in native size; fitStage() centers it.
 
 const N = 4; // 4x4 = 15 tiles + 1 gap
@@ -114,7 +114,7 @@ type Tile = {
 };
 
 export class SlidingPuzzle extends Phaser.Scene {
-	private stage = 2;
+	private stage = 4;
 	private picKey = "puzzle-1"; // chosen randomly per play in init()
 	private picUrl = "/puzzle/1.jpg";
 	private moves = 0;
@@ -134,7 +134,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 	}
 
 	init(data: { stage?: number } = {}) {
-		this.stage = data.stage ?? 2;
+		this.stage = data.stage ?? 4;
 		// pick a random picture for this play; key is stable per image so it caches
 		const n = Phaser.Math.Between(1, PUZZLE_COUNT);
 		this.picKey = `puzzle-${n}`;

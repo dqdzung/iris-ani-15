@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { S, px, FONT } from "../config";
 import { fitStage, clearStage, retryStage } from "../stageUtils";
 
-// Stage 4 — Whack-a-Mole (ported from MiniGames). Clear = survive the 30s round.
+// Stage 2 — Whack-a-Mole (ported from MiniGames). Clear = survive the 30s round.
 // A bomb whack drains the clock; if it hits 0 early, that's a fail → retry.
 
 const GW = 480 * S;
@@ -48,7 +48,7 @@ type Hole = {
 };
 
 export class WhackAMole extends Phaser.Scene {
-  private stage = 4;
+  private stage = 2;
   private score = 0;
   private timeLeft = GAME_TIME;
   private over = false;
@@ -63,7 +63,7 @@ export class WhackAMole extends Phaser.Scene {
   }
 
   init(data: { stage?: number } = {}) {
-    this.stage = data.stage ?? 4;
+    this.stage = data.stage ?? 2;
   }
 
   preload() {

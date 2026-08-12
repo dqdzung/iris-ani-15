@@ -25,7 +25,9 @@ const BOARD_W = GRID_ORIGIN_X * 2 + GRID_COLS * CELL;
 const BOARD_H = GRID_ORIGIN_Y * 2 + GRID_ROWS * CELL;
 const PANEL_PAD = 20 * S;
 const SIDE_MARGIN = 20 * S;
-const TOP_MARGIN = 156 * S;
+// Header is commented out for now, so top/bottom margins are symmetric → the
+// board is vertically centered and fills the viewport instead of sitting low.
+const TOP_MARGIN = 60 * S;
 const BOTTOM_MARGIN = 60 * S;
 
 const PANEL_W = BOARD_W + PANEL_PAD * 2;
