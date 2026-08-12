@@ -131,11 +131,13 @@ const STEEL_RIM = 0x0c1626,
   STEEL_HI = 0xc9d3e0;
 const FLANGE_COLOR = 0x8a97a8,
   BOLT_COLOR = 0x0c1626;
-const WATER_B = 0xffd166; // "flow" glow — gold, the game-wide accent
-const PANEL_COLOR = 0x16213e; // matches the Loot Catcher / Sliding Puzzle panels
-const TEXT_HI = "#f0f0f0",
-  TEXT_MID = "#8a8fa3", // the shared muted-slate text color
+const WATER_B = 0x22c7a9;
+const PANEL_COLOR = 0x111a44;
+const TEXT_HI = "#EAF1FB",
+  TEXT_MID = "#8FA3C2",
   GOLD = "#FFD166";
+// Signature game font (boot / IRIS / StageCard use this same stack).
+const MONO = '"SFMono-Regular", ui-monospace, Menlo, monospace';
 
 function drawSpokeSet(g: Phaser.GameObjects.Graphics, dirs: Dir[], halfLen: number, w: number, color: number) {
   g.fillStyle(color, 1);
@@ -333,6 +335,7 @@ export class PipeConnect extends Phaser.Scene {
       const { valve } = this.forkGeometry(kind);
       const t = this.add
         .text(valve.x + (kind === "start" ? 5 * S : -5 * S), valve.y - 46 * S, kind === "start" ? "KHỦNG HOẢNG" : "GIẢI PHÁP", {
+          fontFamily: MONO,
           fontSize: px(10),
           color: TEXT_MID,
           padding: { y: 2 },
@@ -343,6 +346,7 @@ export class PipeConnect extends Phaser.Scene {
 
     this.statusText = this.add
       .text(GW / 2, PANEL_Y + PANEL_H + 30 * S, "Nhấn vào từng đoạn ống để xoay 90°.", {
+        fontFamily: MONO,
         fontSize: px(14),
         color: TEXT_MID,
         padding: { y: 4 },
@@ -523,7 +527,7 @@ export class PipeConnect extends Phaser.Scene {
       return cellCenter(cell.row, cell.col);
     });
 
-    const spark = this.add.circle(waypoints[0].x, waypoints[0].y, 8 * S, 0xffd166).setDepth(50);
+    const spark = this.add.circle(waypoints[0].x, waypoints[0].y, 8 * S, 0x2fe0ff).setDepth(50);
     this.board.add(spark);
     let i = 0;
     const next = () => {
@@ -548,7 +552,7 @@ export class PipeConnect extends Phaser.Scene {
   }
 
   private launchConfetti() {
-    const colors = [0xffd166, 0xef476f, 0x06d6a0, 0x118ab2, 0xffffff];
+    const colors = [0x22c7a9, 0x2e6be6, 0xffd166, 0xeaf1fb, 0x2fe0ff];
     for (let i = 0; i < 70; i++) {
       const w = (5 + Math.random() * 5) * S;
       const h = w * 1.6;

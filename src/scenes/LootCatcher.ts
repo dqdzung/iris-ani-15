@@ -10,12 +10,17 @@ const GW = 480 * S;
 const GH = 640 * S;
 
 // Rewards are images from public/loot-catcher (key/file), weighted by rarity.
+// Weight falls as value rises → the more a reward is worth, the rarer it is.
 const REWARDS = [
-	{ key: "lc-1800", file: "1800_1900.png", weight: 45, value: 10 },
-	{ key: "lc-6x67", file: "6x67.png", weight: 28, value: 20 },
-	{ key: "lc-chatbot", file: "AIchatbot.png", weight: 15, value: 40 },
-	{ key: "lc-dino", file: "Dino.png", weight: 8, value: 75 },
-	{ key: "lc-sms", file: "sms-brand.png", weight: 4, value: 150 },
+	{ key: "lc-1800", file: "1800_1900.png", weight: 28, value: 10 },
+	{ key: "lc-6x67", file: "6x67.png", weight: 22, value: 20 },
+	// topup / gameCard / dataCard are the same type → same weight + value
+	{ key: "lc-topup", file: "topup.png", weight: 16, value: 30 },
+	{ key: "lc-gamecard", file: "gameCard.png", weight: 16, value: 30 },
+	{ key: "lc-datacard", file: "dataCard.png", weight: 16, value: 30 },
+	{ key: "lc-chatbot", file: "AIchatbot.png", weight: 13, value: 40 },
+	{ key: "lc-dino", file: "Dino.png", weight: 10, value: 75 },
+	{ key: "lc-sms", file: "sms-brand.png", weight: 8, value: 150 },
 ];
 const REWARD_BOX = { w: 66, h: 44 }; // fit each image into this box (design units)
 const BUG = "👾"; // the penalty item — a computer bug
