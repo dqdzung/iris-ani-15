@@ -135,8 +135,8 @@ const FLANGE_COLOR = 0x8a97a8,
   BOLT_COLOR = 0x0c1626;
 const WATER_B = 0x22c7a9;
 const PANEL_COLOR = 0x111a44;
-const TEXT_HI = "#EAF1FB",
-  TEXT_MID = "#8FA3C2",
+const TEXT_HI = "#f0f0f0", // shared bright text
+  TEXT_MID = "#8a8fa3", // shared muted-slate text (matches the other games)
   GOLD = "#FFD166";
 // Vietnamese-friendly monospace (this scene's copy is in Vietnamese).
 const MONO = FONT;
@@ -336,10 +336,11 @@ export class PipeConnect extends Phaser.Scene {
     (["start", "end"] as const).forEach((kind) => {
       const { valve } = this.forkGeometry(kind);
       const t = this.add
-        .text(valve.x + (kind === "start" ? 5 * S : -5 * S), valve.y - 46 * S, kind === "start" ? "KHỦNG HOẢNG" : "GIẢI PHÁP", {
+        .text(valve.x + (kind === "start" ? 5 * S : -5 * S), valve.y - 52 * S, kind === "start" ? "KHỦNG HOẢNG" : "GIẢI PHÁP", {
           fontFamily: MONO,
-          fontSize: px(10),
+          fontSize: px(20),
           color: TEXT_MID,
+          fontStyle: "bold",
           padding: { y: 2 },
         })
         .setOrigin(kind === "start" ? 0 : 1, 0.5);
@@ -347,9 +348,9 @@ export class PipeConnect extends Phaser.Scene {
     });
 
     this.statusText = this.add
-      .text(GW / 2, PANEL_Y + PANEL_H + 30 * S, "Nhấn vào từng đoạn ống để xoay 90°.", {
+      .text(GW / 2, PANEL_Y + PANEL_H + 34 * S, "Nhấn vào từng đoạn ống để xoay 90°.", {
         fontFamily: MONO,
-        fontSize: px(14),
+        fontSize: px(26),
         color: TEXT_MID,
         padding: { y: 4 },
       })
