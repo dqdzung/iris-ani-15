@@ -187,7 +187,11 @@ export class WhackAMole extends Phaser.Scene {
         new Phaser.Geom.Rectangle(-pad, -pad, o.width + pad * 2, o.height + pad * 2),
         Phaser.Geom.Rectangle.Contains,
       );
-      o.on("pointerdown", () => this.whack(hole));
+      // both mole & boss are always interactive; only the risen one counts, else
+      // the hidden (ducked) sibling's hitbox below the hole would score a "hit".
+      o.on("pointerdown", () => {
+        if (o === hole.actor) this.whack(hole);
+      });
     }
     this.holes.push(hole);
   }

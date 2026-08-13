@@ -9,7 +9,7 @@ import { FONT } from "./config";
 const CSS = `
 #boot {
   position: fixed; inset: 0; z-index: 40; background: #0a0b0a; color: #d6d6d6;
-  font: 400 clamp(16px, 2.9vw, 24px)/1.55 ${FONT};
+  font: 400 clamp(16px, 2.9vw, 24px)/1.25 ${FONT};
   padding: clamp(18px, 5vw, 60px); overflow: hidden; cursor: pointer;
   text-shadow: 0 0 2px rgba(120,255,160,.25);
   animation: bootFlicker .12s steps(2) infinite;
@@ -28,11 +28,22 @@ const CSS = `
 #boot .iris { color: #ffd166; font-weight: 700; }
 #boot .cur { display: inline-block; width: .6em; height: 1.1em;
   background: #d6d6d6; vertical-align: -2px; animation: bootBlink 1s steps(1) infinite; }
+#boot .logo {
+  position: absolute; bottom: clamp(16px, 4vh, 44px); left: 0; right: 0; margin-inline: auto;
+  display: block; width: clamp(140px, 20vw, 210px); height: auto;
+  pointer-events: none; /* no z-index → the ::after scanlines fall over it too */
+  animation: bootFlip 2.6s linear infinite;
+}
 /* launch: fade the whole log except the zooming "I" (and the scanlines/cursor) */
 #boot.launch::after { opacity: 0; }
 #boot.launch .cur { animation: none; opacity: 0; }
+#boot.launch .logo { opacity: 0; transition: opacity .35s ease; }
 #boot.launch .body > span:not(.iZoom) { opacity: 0; transition: opacity .35s ease; }
 @keyframes bootBlink { 50% { opacity: 0; } }
+@keyframes bootFlip {
+  from { transform: perspective(500px) rotateY(0deg); }
+  to { transform: perspective(500px) rotateY(360deg); }
+}
 @keyframes bootFlicker { 0% { opacity: 1; } 100% { opacity: .97; } }
 `;
 
@@ -66,6 +77,7 @@ export function playBootScreen(onStart: () => void) {
 	const root = document.createElement("div");
 	root.id = "boot";
 	root.innerHTML =
+		'<img class="logo" src="/iristech.png" alt="" />' +
 		'<pre><span class="body"></span><span class="cur"></span></pre>';
 	document.body.appendChild(root);
 	const body = root.querySelector<HTMLSpanElement>(".body")!;

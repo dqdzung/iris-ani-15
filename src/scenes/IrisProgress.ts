@@ -35,6 +35,12 @@ export class IrisProgress extends Phaser.Scene {
     this.finale = data.finale ?? false;
   }
 
+  preload() {
+    // only the finale plays the restore video (loaded once, then cached)
+    if (this.finale && !this.cache.video.exists("iris-vid"))
+      this.load.video("iris-vid", "/video/iris-progress.mp4", true);
+  }
+
   create() {
     const cam = this.cameras.main;
     cam.setBackgroundColor("#0a0b0a");
@@ -85,7 +91,20 @@ export class IrisProgress extends Phaser.Scene {
   private runRestore(cx: number, cy: number, U: number) {
     const barW = Math.min(vw(this) * 0.5, 360 * U);
     const barH = 12 * U;
-    const by = cy + 90 * U;
+    const hasVideo = this.cache.video.exists("iris-vid");
+    // with a video, lift the bar up and shift the lit letters to a compact top row
+    const by = hasVideo ? cy - 96 * U : cy + 90 * U;
+    if (hasVideo) {
+      this.letters.forEach((t) =>
+        this.tweens.add({
+          targets: t,
+          y: cy - 200 * U,
+          scale: 0.7,
+          duration: 500,
+          ease: "Cubic.easeInOut",
+        }),
+      );
+    }
 
     // Show the "RESTORING MEMORIES" label first…
     const label = this.add
@@ -98,9 +117,9 @@ export class IrisProgress extends Phaser.Scene {
       .setAlpha(0);
     this.tweens.add({ targets: label, alpha: 1, duration: 300 });
 
-    // …then bring in the bar and start filling a beat later.
+    // …then bring in the bar (and the video) a beat later.
     this.time.delayedCall(700, () =>
-      this.runRestoreBar(cx, cy, U, barW, barH, by, label),
+      this.runRestoreBar(cx, cy, U, barW, barH, by, label, hasVideo),
     );
   }
 
@@ -112,6 +131,7 @@ export class IrisProgress extends Phaser.Scene {
     barH: number,
     by: number,
     label: Phaser.GameObjects.Text,
+    hasVideo: boolean,
   ) {
     const track = this.add
       .rectangle(cx, by, barW, barH, 0x000000)
@@ -127,8 +147,68 @@ export class IrisProgress extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Fill fast to ~90%, hang there a beat (the classic "almost done" stall), then
-    // crawl the last stretch — so it reads as a long restore finishing up.
+    // Muted restore video below the bar, fit into the space beneath it. Its end
+    // drives the hand-off to the reveal (auto-advance).
+    let video: Phaser.GameObjects.Video | undefined;
+    let frame: Phaser.GameObjects.Rectangle | undefined;
+    if (hasVideo) {
+      const VIDEO_W = 1912,
+        VIDEO_H = 1080;
+      const top = by + 44 * U;
+      const availH = vh(this) - top - 28 * U;
+      // Contain the video in a modest, capped box under the bar (fit by aspect).
+      // setScale from the known dims — the frame size isn't reliably ready at
+      // creation, so setDisplaySize mis-scales.
+      const scale = Math.min(
+        (vw(this) * 0.5) / VIDEO_W,
+        availH / VIDEO_H,
+        (240 * U) / VIDEO_H,
+      );
+      const w = VIDEO_W * scale,
+        h = VIDEO_H * scale;
+      const yc = top + h / 2;
+      frame = this.add
+        .rectangle(cx, yc, w + 6 * U, h + 6 * U, 0x000000, 0)
+        .setStrokeStyle(2 * U, 0x4a4a3a);
+      video = this.add
+        .video(cx, yc, "iris-vid")
+        .setMute(true)
+        .setScale(scale);
+      video.play(false);
+    }
+
+    const objs: Phaser.GameObjects.GameObject[] = [label, track, fill, pct];
+    if (frame) objs.push(frame);
+    if (video) objs.push(video);
+    let advanced = false;
+    const advance = () => {
+      if (advanced) return;
+      advanced = true;
+      this.tweens.add({
+        targets: objs,
+        alpha: 0,
+        duration: 300,
+        onComplete: () => objs.forEach((o) => o.destroy()),
+      });
+      this.showRestored(cx, cy, U);
+    };
+
+    // Fill fast to ~90%, hang, then crawl — stretched to ~the video length when present.
+    const steps: [number, number, string][] = hasVideo
+      ? [
+          [0.9, 4600, "Quad.easeOut"],
+          [0.9, 3000, "Linear"],
+          [0.97, 3800, "Sine.easeInOut"],
+          [0.97, 1800, "Linear"],
+          [1, 1400, "Quad.easeIn"],
+        ]
+      : [
+          [0.9, 1400, "Quad.easeOut"],
+          [0.9, 900, "Linear"],
+          [0.97, 1100, "Sine.easeInOut"],
+          [0.97, 500, "Linear"],
+          [1, 500, "Quad.easeIn"],
+        ];
     const prog = { v: 0 };
     const draw = () => {
       fill.width = barW * prog.v;
@@ -136,23 +216,21 @@ export class IrisProgress extends Phaser.Scene {
     };
     this.tweens.chain({
       targets: prog,
-      tweens: [
-        { v: 0.9, duration: 1400, ease: "Quad.easeOut", onUpdate: draw },
-        { v: 0.9, duration: 900, onUpdate: draw }, // hang
-        { v: 0.97, duration: 1100, ease: "Sine.easeInOut", onUpdate: draw },
-        { v: 0.97, duration: 500, onUpdate: draw }, // hang again
-        { v: 1, duration: 500, ease: "Quad.easeIn", onUpdate: draw },
-      ],
+      tweens: steps.map(([v, duration, ease]) => ({
+        v,
+        duration,
+        ease,
+        onUpdate: draw,
+      })),
       onComplete: () => {
-        this.tweens.add({
-          targets: [label, track, fill, pct],
-          alpha: 0,
-          duration: 300,
-          onComplete: () => [label, track, fill, pct].forEach((o) => o.destroy()),
-        });
-        this.showRestored(cx, cy, U);
+        if (!hasVideo) advance(); // no video → the bar drives the hand-off
       },
     });
+
+    if (video) {
+      video.once("complete", advance);
+      this.time.delayedCall(19000, advance); // fallback if it never fires
+    }
   }
 
   private lightLetter(i: number, delay: number, U: number) {
