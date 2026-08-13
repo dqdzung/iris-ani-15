@@ -154,7 +154,7 @@ export class IrisProgress extends Phaser.Scene {
     if (hasVideo) {
       const VIDEO_W = 1912,
         VIDEO_H = 1080;
-      const top = by + 44 * U;
+      const top = by + 72 * U; // extra gap below the bar
       const availH = vh(this) - top - 28 * U;
       // Contain the video in a modest, capped box under the bar (fit by aspect).
       // setScale from the known dims — the frame size isn't reliably ready at
@@ -174,7 +174,7 @@ export class IrisProgress extends Phaser.Scene {
         .video(cx, yc, "iris-vid")
         .setMute(true)
         .setScale(scale);
-      video.play(false);
+      // playback is started below, after the 'playing' listener is attached
     }
 
     const objs: Phaser.GameObjects.GameObject[] = [label, track, fill, pct];
@@ -214,22 +214,34 @@ export class IrisProgress extends Phaser.Scene {
       fill.width = barW * prog.v;
       pct.setText(`${Math.round(prog.v * 100)}%`);
     };
-    this.tweens.chain({
-      targets: prog,
-      tweens: steps.map(([v, duration, ease]) => ({
-        v,
-        duration,
-        ease,
-        onUpdate: draw,
-      })),
-      onComplete: () => {
-        if (!hasVideo) advance(); // no video → the bar drives the hand-off
-      },
-    });
+    let barStarted = false;
+    const startBar = () => {
+      if (barStarted) return;
+      barStarted = true;
+      this.tweens.chain({
+        targets: prog,
+        tweens: steps.map(([v, duration, ease]) => ({
+          v,
+          duration,
+          ease,
+          onUpdate: draw,
+        })),
+        onComplete: () => {
+          if (!hasVideo) advance(); // no video → the bar drives the hand-off
+        },
+      });
+    };
 
     if (video) {
+      // only start filling once the <video> is actually playing frames
+      const el = video.video as HTMLVideoElement | null; // underlying element
+      if (el) el.addEventListener("playing", startBar, { once: true });
       video.once("complete", advance);
-      this.time.delayedCall(19000, advance); // fallback if it never fires
+      this.time.delayedCall(1500, startBar); // fallback if 'playing' never fires
+      this.time.delayedCall(19000, advance); // fallback if 'complete' never fires
+      video.play(false);
+    } else {
+      startBar();
     }
   }
 
