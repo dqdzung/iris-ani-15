@@ -87,7 +87,7 @@ export class LootCatcher extends Phaser.Scene {
 		fitStage(this, GW, GH);
 		this.add.rectangle(0, 0, GW, GH, 0x16213e).setOrigin(0); // game panel
 
-		this.scoreText = this.add.text(16 * S, 12 * S, "Score: 0", {
+		this.scoreText = this.add.text(16 * S, 12 * S, "Điểm: 0", {
 			fontFamily: FONT, fontSize: px(20),
 			color: "#ffd166",
 			fontStyle: "bold",
@@ -116,7 +116,7 @@ export class LootCatcher extends Phaser.Scene {
 		this.keys = this.input.keyboard!.addKeys("A,D") as typeof this.keys;
 
 		this.add
-			.text(GW / 2, GH - 20 * S, "← → or move mouse · survive the clock", {
+			.text(GW / 2, GH - 20 * S, "← → hoặc di chuột · trụ đến hết giờ", {
 				fontFamily: FONT, fontSize: px(13),
 				color: "#889",
 				padding: { y: 4 },
@@ -288,7 +288,7 @@ export class LootCatcher extends Phaser.Scene {
 			this.loseLife();
 		} else {
 			this.score += item.value;
-			this.scoreText.setText("Score: " + this.score);
+			this.scoreText.setText("Điểm: " + this.score);
 			const level = Math.floor(this.score / 200);
 			this.fallSpeed = (160 + level * 40) * S;
 			this.spawnEvery = Math.max(400, 900 - level * 80);
@@ -309,7 +309,7 @@ export class LootCatcher extends Phaser.Scene {
 		this.input.mouse?.releasePointerLock();
 		this.clearItems();
 		this.add
-			.text(GW / 2, GH / 2, "Made it! 🎉", {
+			.text(GW / 2, GH / 2, "Qua rồi! 🎉", {
 				fontFamily: FONT, fontSize: px(34),
 				color: "#ffd166",
 				fontStyle: "bold",
@@ -326,7 +326,7 @@ export class LootCatcher extends Phaser.Scene {
 		this.clearItems();
 		this.add.rectangle(GW / 2, GH / 2, GW, GH, 0x000000, 0.75);
 		this.add
-			.text(GW / 2, GH / 2 - 24 * S, "Game Over 💥", {
+			.text(GW / 2, GH / 2 - 24 * S, "Kết thúc 💥", {
 				fontFamily: FONT, fontSize: px(36),
 				color: "#fff",
 				fontStyle: "bold",
@@ -334,7 +334,7 @@ export class LootCatcher extends Phaser.Scene {
 			})
 			.setOrigin(0.5);
 		this.add
-			.text(GW / 2, GH / 2 + 22 * S, `Lasted ${SURVIVE - this.timeLeft}s`, {
+			.text(GW / 2, GH / 2 + 22 * S, `Trụ được ${SURVIVE - this.timeLeft}s`, {
 				fontFamily: FONT, fontSize: px(18),
 				color: "#aab",
 				padding: { y: 6 },
@@ -344,7 +344,7 @@ export class LootCatcher extends Phaser.Scene {
 			.rectangle(GW / 2, GH / 2 + 76 * S, 200 * S, 52 * S, 0xffd166)
 			.setInteractive({ useHandCursor: true });
 		this.add
-			.text(GW / 2, GH / 2 + 76 * S, "Try Again", {
+			.text(GW / 2, GH / 2 + 76 * S, "Chơi lại", {
 				fontFamily: FONT, fontSize: px(20),
 				color: "#12141c",
 				fontStyle: "bold",

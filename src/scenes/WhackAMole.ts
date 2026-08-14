@@ -91,7 +91,7 @@ export class WhackAMole extends Phaser.Scene {
       for (const cx of GRID) this.makeHole(cx * GW, skyH + ry * GW);
 
     this.scoreText = this.add
-      .text(16 * S, 12 * S, "Score: 0", {
+      .text(16 * S, 12 * S, "Điểm: 0", {
         fontFamily: FONT, fontSize: px(20),
         color: "#ffd166",
         fontStyle: "bold",
@@ -99,7 +99,7 @@ export class WhackAMole extends Phaser.Scene {
       })
       .setDepth(50);
     this.timeText = this.add
-      .text(GW - 16 * S, 12 * S, "Time: " + GAME_TIME, {
+      .text(GW - 16 * S, 12 * S, "Thời gian: " + GAME_TIME, {
         fontFamily: FONT, fontSize: px(20),
         color: "#ffd166",
         fontStyle: "bold",
@@ -244,7 +244,7 @@ export class WhackAMole extends Phaser.Scene {
     if (this.over || !h.up) return;
     if (h.bomb) {
       this.timeLeft = Math.max(0, this.timeLeft - BOMB_PENALTY);
-      this.timeText.setText("Time: " + this.timeLeft);
+      this.timeText.setText("Thời gian: " + this.timeLeft);
       this.boom(h.x, h.upY, "💥", 56);
       this.penaltyPop(h.x, h.upY);
       this.cameras.main.shake(140, 0.006);
@@ -269,7 +269,7 @@ export class WhackAMole extends Phaser.Scene {
       return;
     }
     this.score += 1;
-    this.scoreText.setText("Score: " + this.score);
+    this.scoreText.setText("Điểm: " + this.score);
     this.stun(h);
   }
 
@@ -355,7 +355,7 @@ export class WhackAMole extends Phaser.Scene {
   private tick() {
     if (this.over) return;
     this.timeLeft -= 1;
-    this.timeText.setText("Time: " + this.timeLeft);
+    this.timeText.setText("Thời gian: " + this.timeLeft);
     if (this.timeLeft <= 0) this.endGame(true); // survived the round → clear
   }
 
@@ -368,7 +368,7 @@ export class WhackAMole extends Phaser.Scene {
       .rectangle(GW / 2, GH / 2, GW, GH, 0x000000, 0.75)
       .setDepth(90);
     this.add
-      .text(GW / 2, GH / 2 - 26 * S, survived ? "Cleared! ⛳" : "Urgh! 💥", {
+      .text(GW / 2, GH / 2 - 26 * S, survived ? "Hoàn thành! ⛳" : "Toi rồi! 💥", {
         fontFamily: FONT, fontSize: px(34),
         color: "#fff",
         fontStyle: "bold",
@@ -379,7 +379,7 @@ export class WhackAMole extends Phaser.Scene {
 
     if (survived) {
       this.add
-        .text(GW / 2, GH / 2 + 30 * S, "Score: " + this.score, {
+        .text(GW / 2, GH / 2 + 30 * S, "Điểm: " + this.score, {
           fontFamily: FONT, fontSize: px(18),
           color: "#8a8fa3",
           align: "center",
@@ -390,7 +390,7 @@ export class WhackAMole extends Phaser.Scene {
       this.time.delayedCall(900, () => clearStage(this, this.stage));
     } else {
       this.add
-        .text(GW / 2, GH / 2 + 24 * S, "You're fired for whacking the bosses too much", {
+        .text(GW / 2, GH / 2 + 24 * S, "Bạn bị đuổi việc vì đập sếp quá nhiều", {
           fontFamily: FONT, fontSize: px(16),
           color: "#8a8fa3",
           padding: { y: 6 },
@@ -402,7 +402,7 @@ export class WhackAMole extends Phaser.Scene {
         .setDepth(91)
         .setInteractive({ useHandCursor: true });
       this.add
-        .text(GW / 2, GH / 2 + 74 * S, "Try Again", {
+        .text(GW / 2, GH / 2 + 74 * S, "Chơi lại", {
           fontFamily: FONT, fontSize: px(20),
           color: "#12141c",
           fontStyle: "bold",

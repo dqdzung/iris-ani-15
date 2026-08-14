@@ -84,7 +84,7 @@ export class StageCard extends Phaser.Scene {
         })
         .setOrigin(0.5);
       this.add
-        .text(cx, cy + 40 * U, "Cleared! ⛳", {
+        .text(cx, cy + 40 * U, "Hoàn thành! ⛳", {
           fontFamily: FONT,
           fontSize: fs(this, 44),
           color: "#ffd166",
@@ -97,7 +97,7 @@ export class StageCard extends Phaser.Scene {
       .text(
         cx,
         cy + 130 * U,
-        this.mode === "intro" ? "tap to begin" : "tap to continue",
+        this.mode === "intro" ? "Nhấn để bắt đầu" : "Nhấn để tiếp tục",
         { fontFamily: FONT, fontSize: fs(this, 20), color: "#ffd166" },
       )
       .setOrigin(0.5);

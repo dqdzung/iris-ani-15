@@ -152,8 +152,8 @@ export class IrisProgress extends Phaser.Scene {
     let video: Phaser.GameObjects.Video | undefined;
     let frame: Phaser.GameObjects.Rectangle | undefined;
     if (hasVideo) {
-      const VIDEO_W = 1912,
-        VIDEO_H = 1080;
+      const VIDEO_W = 1152, // must match the encoded /video/iris-progress.mp4 dims
+        VIDEO_H = 650;
       const top = by + 72 * U; // extra gap below the bar
       const availH = vh(this) - top - 28 * U;
       // Contain the video in a modest, capped box under the bar (fit by aspect).
@@ -465,7 +465,7 @@ export class IrisProgress extends Phaser.Scene {
   private showPrompt(cx: number, cy: number, U: number, delay: number) {
     this.time.delayedCall(delay, () => {
       const prompt = this.add
-        .text(cx, cy + 100 * U, "tap to continue", {
+        .text(cx, cy + 100 * U, "Nhấn để tiếp tục", {
           fontFamily: MONO,
           fontSize: fs(this, 22),
           color: GOLD,

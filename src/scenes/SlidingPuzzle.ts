@@ -158,7 +158,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 		this.buildPicture();
 
 		this.add
-			.text(GW / 2, 18 * S, "Sliding Puzzle", {
+			.text(GW / 2, 18 * S, "Ghép Hình", {
 				fontFamily: FONT, fontSize: px(22),
 				color: "#fff",
 				fontStyle: "bold",
@@ -166,7 +166,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			})
 			.setOrigin(0.5, 0);
 		this.movesText = this.add
-			.text(MARGIN, 66 * S, "Moves: 0", {
+			.text(MARGIN, 66 * S, "Lượt: 0", {
 				fontFamily: FONT, fontSize: px(18),
 				color: "#ffd166",
 				fontStyle: "bold",
@@ -174,7 +174,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			})
 			.setOrigin(0, 0.5);
 		this.parText = this.add
-			.text(GW / 2, 66 * S, "Par: —", {
+			.text(GW / 2, 66 * S, "Chuẩn: —", {
 				fontFamily: FONT, fontSize: px(16),
 				color: "#8fb3d9",
 				fontStyle: "bold",
@@ -195,7 +195,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			.text(
 				GW / 2,
 				GH - BOT_BAR / 2,
-				"Tap a piece next to the gap — or use arrow keys",
+				"Chạm mảnh cạnh ô trống — hoặc dùng phím mũi tên",
 				{ fontFamily: FONT, fontSize: px(13), color: "#889", padding: { y: 4 } },
 			)
 			.setOrigin(0.5);
@@ -217,7 +217,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			this.par = optimalMoves(this.grid);
 		} while (this.par === null); // re-scramble a board the solver can't rate (rare)
 		this.render(false);
-		this.parText.setText("Par: " + this.par);
+		this.parText.setText("Chuẩn: " + this.par);
 
 		this.cursors = this.input.keyboard!.createCursorKeys();
 	}
@@ -371,7 +371,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 		this.grid[slot] = 0;
 		this.blank = slot;
 		this.moves++;
-		this.movesText.setText("Moves: " + this.moves);
+		this.movesText.setText("Lượt: " + this.moves);
 		this.busy = true;
 		const t = this.tiles[value],
 			dest = this.slotOf(value);
@@ -425,7 +425,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			.setCrop(cx, cy, TILE, TILE);
 		this.add.rectangle(GW / 2, GH / 2, GW, GH, 0x000000, 0.68).setDepth(10);
 		this.add
-			.text(GW / 2, GH / 2 - 24 * S, "Solved! 🧩", {
+			.text(GW / 2, GH / 2 - 24 * S, "Hoàn thành! 🧩", {
 				fontFamily: FONT, fontSize: px(34),
 				color: "#fff",
 				fontStyle: "bold",
@@ -434,7 +434,7 @@ export class SlidingPuzzle extends Phaser.Scene {
 			.setOrigin(0.5)
 			.setDepth(11);
 		this.add
-			.text(GW / 2, GH / 2 + 22 * S, `${this.moves} moves`, {
+			.text(GW / 2, GH / 2 + 22 * S, `${this.moves} lượt`, {
 				fontFamily: FONT, fontSize: px(16),
 				color: "#aab",
 				padding: { y: 6 },
