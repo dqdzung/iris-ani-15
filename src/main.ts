@@ -10,6 +10,7 @@ import { initOverworld, showOverworld } from "./overworld";
 import { clearStage } from "./stageUtils";
 import { playTvIntro } from "./tvIntro";
 import { playBootScreen } from "./bootScreen";
+import { playLoadingScreen } from "./loadingScreen";
 import { PipeConnect } from "./scenes/PipeConnect";
 
 // Responsive + crisp: the canvas fills the viewport, and we render at the device
@@ -44,8 +45,11 @@ resize();
 // DOM overworld (climb-2d) overlays the canvas; show it at the start, behind a
 // one-shot "old TV turning on" intro that reveals it.
 initOverworld(game); // sets up routing (climb visuals shelved — see overworld.ts)
-// TV turns on → boot log types out → "Press START" enters stage 1.
-playTvIntro(() => playBootScreen(() => showOverworld(0)));
+// Loading screen (flipping logo) preloads every heavy asset → TV turns on →
+// boot log types out → "Press START" enters stage 1.
+playLoadingScreen(() =>
+  playTvIntro(() => playBootScreen(() => showOverworld(0))),
+);
 
 // Looping background music for the whole session. Browsers block audio autoplay
 // until a user gesture, so start it on the first click/keypress (then stop trying).
