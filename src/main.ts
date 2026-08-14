@@ -47,6 +47,52 @@ initOverworld(game); // sets up routing (climb visuals shelved — see overworld
 // TV turns on → boot log types out → "Press START" enters stage 1.
 playTvIntro(() => playBootScreen(() => showOverworld(0)));
 
+// Looping background music for the whole session. Browsers block audio autoplay
+// until a user gesture, so start it on the first click/keypress (then stop trying).
+const music = new Audio("/audio/first-regression.mp3");
+music.loop = true;
+music.volume = 0.4;
+music.preload = "auto";
+document.body.appendChild(music);
+const startMusic = () => {
+  music.play().then(
+    () => {
+      window.removeEventListener("pointerdown", startMusic);
+      window.removeEventListener("keydown", startMusic);
+    },
+    () => {}, // still blocked — keep waiting for the next gesture
+  );
+};
+music.play().catch(() => {}); // try immediately (works if already interacted)
+window.addEventListener("pointerdown", startMusic);
+window.addEventListener("keydown", startMusic);
+
+// Mute toggle — fixed top-right, above every screen (boot, games, finale).
+const muteBtn = document.createElement("button");
+muteBtn.textContent = "🔊";
+muteBtn.setAttribute("aria-label", "Toggle music");
+Object.assign(muteBtn.style, {
+  position: "fixed",
+  top: "12px",
+  right: "12px",
+  zIndex: "100",
+  width: "42px",
+  height: "42px",
+  borderRadius: "8px",
+  border: "1px solid #ffd166",
+  background: "rgba(10,11,10,.55)",
+  color: "#ffd166",
+  fontSize: "20px",
+  lineHeight: "1",
+  cursor: "pointer",
+  padding: "0",
+});
+muteBtn.onclick = () => {
+  music.muted = !music.muted;
+  muteBtn.textContent = music.muted ? "🔇" : "🔊";
+};
+document.body.appendChild(muteBtn);
+
 const GAMES = ["LootCatcher", "SlidingPuzzle", "PipeConnect", "WhackAMole"];
 const activeGame = () =>
   game.scene.getScenes(true).find((s) => GAMES.includes(s.scene.key));
